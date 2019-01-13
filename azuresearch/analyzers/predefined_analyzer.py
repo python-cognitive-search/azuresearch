@@ -1,17 +1,24 @@
+""" PredefinedAnalyzer
+"""
 from azuresearch.service import Endpoint
 from .abstract_analyzer import AbstractAnalyzer
 
 
 class PredefinedAnalyzer(AbstractAnalyzer):
+    """ PredefinedAnalyzer
+    """
     __name__ = 'PredefinedAnalyzer'
     endpoint = Endpoint("indexes")
 
-    def __init__(self, index_name, name, type, options=None,**kwargs):
-        super(PredefinedAnalyzer, self).__init__(index_name, name, type,**kwargs)
+    def __init__(self, index_name, name, type, options=None, **kwargs):
+        super(PredefinedAnalyzer, self).__init__(
+            index_name, name, type, **kwargs)
         self.options = options
 
     def to_dict(self):
-        return_dict= {
+        """ to_dict
+        """
+        return_dict = {
             "name": self.name,
             "@odata.type": self.type,
             "searchMode": self.search_mode,
@@ -51,7 +58,8 @@ tokenizers = {
     "letter": None,
     "lowercase": None,
     "microsoft_language_tokenizer": "#Microsoft.Azure.Search.MicrosoftLanguageTokenizer",
-    "microsoft_language_stemming_tokenizer": "#Microsoft.Azure.Search.MicrosoftLanguageStemmingTokenizer",
+    "microsoft_language_stemming_tokenizer":
+    "#Microsoft.Azure.Search.MicrosoftLanguageStemmingTokenizer",
     "ngram": "#Microsoft.Azure.Search.NGramTokenizer",
     "path_hierarchy_v2": "#Microsoft.Azure.Search.PathHierarchyTokenizerV2",
     "pattern": "#Microsoft.Azure.Search.PatternTokenizer",

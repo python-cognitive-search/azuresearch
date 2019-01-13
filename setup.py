@@ -1,9 +1,12 @@
+""" setup
+"""
 from setuptools import setup
 
 setup(
     name='azure_search',
     version='0.0.1',
-    packages=['azuresearch', 'azuresearch.indexes', 'azuresearch.skills', 'azuresearch.analyzers'],
+    packages=['azuresearch', 'azuresearch.indexes',
+              'azuresearch.skills', 'azuresearch.analyzers'],
     url='https://github.com/omri374/python-azure-search',
     license='MIT',
     author='Samuel Spencer, Omri Mendels, Elad Iwanir',

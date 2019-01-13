@@ -1,16 +1,24 @@
+""" Skill
+"""
 import json
 
 from azuresearch.azure_search_object import AzureSearchObject
 
 
 class Skill(AzureSearchObject):
+    """ Skill
+    """
+
     def __init__(self, **kwargs):
         """
 
         :param skill_type: the type of skill (@odata.type)
-        :param inputs: A list of objects of type SkillInput which represent the desire inputs for this skill
-        :param outputs: A list of objects of type SkillOutput which represent the desired outputs for this skill
-        :param context: Each skill should have a "context". The context represents the level at which operations take place
+        :param inputs: A list of objects of type SkillInput which represent the desire inputs
+                       for this skill
+        :param outputs: A list of objects of type SkillOutput which represent the desired outputs
+                        for this skill
+        :param context: Each skill should have a "context".
+                        The context represents the level at which operations take place
         :param params: Additional arguments for this skill
         """
         super().__init__(**kwargs)
@@ -38,6 +46,8 @@ class Skill(AzureSearchObject):
                        k not in ['skill_type', '@odata.type', 'inputs', 'outputs', 'context']}
 
     def to_dict(self):
+        """ to_dict
+        """
         return_dict = {
             "@odata.type": self.skill_type,
             "inputs": [inp.to_dict() for inp in self.inputs],
@@ -55,6 +65,8 @@ class Skill(AzureSearchObject):
 
     @classmethod
     def load(cls, data):
+        """ load
+        """
         if data:
             if type(data) is str:
                 data = json.loads(data)
@@ -70,11 +82,10 @@ class Skill(AzureSearchObject):
             data['outputs'] = [SkillOutput.load(so) for so in data['outputs']]
             data['inputs'] = [SkillInput.load(so) for so in data['inputs']]
 
-            skill_type = data['@odata.type']
+            #skill_type = data['@odata.type']
             data = cls.to_snake_case_dict(data)
             return cls(**data)
-        else:
-            raise Exception("data is null")
+        raise Exception("data is null")
 
 
 class SkillInput(AzureSearchObject):
@@ -88,6 +99,8 @@ class SkillInput(AzureSearchObject):
         self.source = source
 
     def to_dict(self):
+        """ to_dict
+        """
         return_dict = {
             "name": self.name,
             "source": self.source
@@ -114,6 +127,8 @@ class SkillOutput(AzureSearchObject):
         self.target_name = target_name
 
     def to_dict(self):
+        """ to_dict
+        """
         return_dict = {
             "name": self.name,
             "targetName": self.target_name
