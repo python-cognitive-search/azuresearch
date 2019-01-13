@@ -1,0 +1,57 @@
+{
+  "name": "name_of_index",
+  "fields": [
+    {
+      "name": "field1",
+      "type": "Edm.String",
+      "searchable": false,
+      "filterable": true,
+      "sortable": true,
+      "facetable": true,
+      "key": false,
+      "retrievable": true
+    },
+    {
+      "name": "field2",
+      "type": "Edm.Boolean",
+      "searchable": false,
+      "filterable": true,
+      "sortable": true,
+      "facetable": true,
+      "key": false,
+      "retrievable": true
+    }
+  ],
+  "suggesters": [
+    {
+      "name": "test_suggester",
+      "searchMode": "analyzingInfixMatching",
+      "sourceFields": [
+        "field1",
+        "field2"
+      ]
+    }
+  ],
+  "scoringProfiles": [
+    {
+      "name": "geo",
+      "text": {
+        "weights": {
+          "hotelName": 5
+        }
+      },
+      "functions": [
+        {
+          "type": "distance",
+          "boost": 5,
+          "fieldName": "location",
+          "interpolation": "logarithmic",
+          "distance": {
+            "referencePointParameter": "currentLocation",
+            "boostingDistance": 10
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "description":
+  "desc",
+  "skills":
+  [
+    {
+      "@odata.type": "#Microsoft.Skills.Text.NamedEntityRecognitionSkill",
+      "categories": [ "Organization" ],
+      "defaultLanguageCode": "en",
+      "inputs": [
+        {
+          "name": "text", "source": "/document/content"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "organizations", "targetName": "organizations"
+        }
+      ]
+    }
+  ]
+}

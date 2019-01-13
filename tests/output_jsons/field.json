@@ -1,0 +1,16 @@
+{
+  "name": "name_of_field",
+  "type": "Edm.GeographyPoint",
+  "searchable": false,
+  "filterable": true,
+  "sortable": true,
+  "facetable": false,
+  "key": false,
+  "retrievable": true,
+  "analyzer": "name_of_analyzer_for_search_and_indexing",
+  "searchAnalyzer": "name_of_search_analyzer",
+  "indexAnalyzer": "name_of_indexing_analyzer",
+  "synonymMaps": [
+    "name_of_synonym_map"
+  ]
+}

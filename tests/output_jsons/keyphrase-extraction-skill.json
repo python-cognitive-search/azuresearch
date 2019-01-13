@@ -1,0 +1,23 @@
+{
+  "@odata.type": "#Microsoft.Skills.Text.KeyPhraseExtractionSkill",
+  "context": "/document/pages/*",
+  "inputs": [
+    {
+      "name": "text",
+      "source": "/document/text"
+    },
+    {
+      "name": "languageCode",
+      "source": "/document/languageCode"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "keyPhrases",
+      "targetName": "keyPhrases"
+    }
+
+  ],
+  "defaultLanguageCode": "en",
+  "maxKeyPhraseCount": 30
+}

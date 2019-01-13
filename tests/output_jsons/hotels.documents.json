@@ -1,0 +1,46 @@
+[  
+  {  
+    "hotelId": "1",  
+    "baseRate": 199.0,  
+    "description": "Best hotel in town",  
+    "description_fr": "Meilleur hôtel en ville",   
+    "hotelName": "Fancy Stay",  
+    "category": "Luxury",  
+    "tags": ["pool", "view", "wifi", "concierge"],  
+    "parkingIncluded": false,  
+    "smokingAllowed": false,  
+    "lastRenovationDate": "2010-06-27T00:00:00Z",  
+    "rating": 5,  
+    "location": { "type": "Point", "coordinates": [-122.131577, 47.678581] }  
+  },  
+  {  
+    "hotelId": "2",  
+    "baseRate": 79.99,  
+    "description": "Cheapest hotel in town",  
+    "description_fr": "Hôtel le moins cher en ville",  
+    "hotelName": "Roach Motel",  
+    "category": "Budget",  
+    "tags": ["motel", "budget"],  
+    "parkingIncluded": true,  
+    "smokingAllowed": true,  
+    "lastRenovationDate": "1982-04-28T00:00:00Z",  
+    "rating": 1,  
+    "location": { "type": "Point", "coordinates": [-122.131577, 49.678581] }  
+  },  
+  {  
+    "hotelId": "3",  
+    "hotelName": "Roach Motel v2",  
+    "description": "An expensive hotel",  
+    "baseRate": 279.99,  
+    "description": "Surprisingly expensive",  
+    "lastRenovationDate": null  
+  },  
+  {  
+    "hotelId": "4",  
+    "hotelName": "Some other hotel2",  
+    "description": "Its ok I suppose",  
+    "baseRate": 279.99,  
+    "description": "An ok hotel, not memorable, but not expensive",  
+    "lastRenovationDate": null  
+  }  
+]
