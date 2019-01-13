@@ -1,3 +1,6 @@
+""" Field
+"""
+
 import json
 
 from azuresearch.azure_search_object import AzureSearchObject
@@ -6,18 +9,26 @@ from azuresearch.azure_search_object import AzureSearchObject
 class Field(AzureSearchObject):
     """
     :param name: name_of_field,
-    :param type: Edm.String | Collection(Edm.String) | Edm.Int32 | Edm.Int64 | Edm.Double | Edm.Boolean | Edm.DateTimeOffset | Edm.GeographyPoint,
-    :param searchable: true (default where applicable) | false (only Edm.String and Collection(Edm.String) fields can be searchable),
+    :param type: Edm.String | Collection(Edm.String) | Edm.Int32 | Edm.Int64 | Edm.Double |
+                 Edm.Boolean | Edm.DateTimeOffset | Edm.GeographyPoint,
+    :param searchable: true (default where applicable) | false (only Edm.String and
+                       Collection(Edm.String) fields can be searchable),
     :param filterable: true (default) | false,
     :param retrievable: true (default) | false,
-    :param sortable: true (default where applicable) | false (Collection(Edm.String) fields cannot be sortable),
-    :param facetable: true (default where applicable) | false (Edm.GeographyPoint fields cannot be facetable),
+    :param sortable: true (default where applicable) | false (Collection(Edm.String) fields
+           cannot be sortable),
+    :param facetable: true (default where applicable) | false (Edm.GeographyPoint fields cannot be
+                      facetable),
     :param key: true | false (default, only Edm.String fields can be keys),
-    :param index_analyzer: name of the indexing analyzer (only if 'searchAnalyzer' is set and 'analyzer' is not set)
-    :param search_analyzer: name of the search analyzer, (only if 'indexAnalyzer' is set and 'analyzer' is not set)
+    :param index_analyzer: name of the indexing analyzer (only if 'searchAnalyzer' is set and
+                           'analyzer' is not set)
+    :param search_analyzer: name of the search analyzer, (only if 'indexAnalyzer' is set and
+                            'analyzer' is not set)
     :param analyzer: Sets the name of the language analyzer to use for the field.
-    For the allowed set of values see Language support (https://docs.microsoft.com/en-us/rest/api/searchservice/language-support).
-    This option can be used only with searchable fields and it can't be set together with either search_analyzer or index_analyzer.
+    For the allowed set of values see Language support
+    (https://docs.microsoft.com/en-us/rest/api/searchservice/language-support).
+    This option can be used only with searchable fields and it can't be set together with either
+    search_analyzer or index_analyzer.
     Once the analyzer is chosen, it cannot be changed for the field.
     :param synonym_maps: List of synonym map to use for this index
     """
@@ -59,26 +70,36 @@ class Field(AzureSearchObject):
         self._validate_name()
 
     def __repr__(self):
+        """ __repr__
+        """
         return "Index.Field : {index}.{name}".format(
             index=self.index_name, name=self.name
         )
 
     @property
     def field_type(self):
+        """ field_type
+        """
         if hasattr(self, '_field_type') and self._field_type is not None:
             return self._field_type
-        else:
-            return "Edm.{}".format(self.__class__.__name__.replace('Field', ""))
+        return "Edm.{}".format(self.__class__.__name__.replace('Field', ""))
 
     def _validate_type(self):
+        """ _validate_type
+        """
         if self.field_type not in types.keys():
-            raise ValueError("Azure Search only supports these types: {types}".format(types=types.keys()))
+            raise ValueError(
+                "Azure Search only supports these types: {types}".format(types=types.keys()))
 
     def _validate_name(self):
+        """ _validate_name
+        """
         if self.name is None or self.name == "":
             raise ValueError("Field must have a name")
 
     def to_dict(self):
+        """ to_dict
+        """
         return_dict = {
             "name": self.name,
             "type": self.field_type,
@@ -105,6 +126,8 @@ class Field(AzureSearchObject):
 
     @classmethod
     def load(cls, data, **kwargs):
+        """ load
+        """
         if data:
             if type(data) is str:
                 data = json.loads(data)
@@ -115,11 +138,12 @@ class Field(AzureSearchObject):
             kwargs.update(data)
             kwargs = cls.to_snake_case_dict(kwargs)
             return field_type(**kwargs)
-        else:
-            raise Exception("data is None")
+        raise Exception("data is None")
 
 
 class StringField(Field):
+    """ StringField
+    """
     python_type = str
 
     def __init__(self, name, searchable=True, key=False, *args, **kwargs):
@@ -129,6 +153,8 @@ class StringField(Field):
 
 
 class CollectionField(Field):
+    """ CollectionField
+    """
     _field_type = "Collection(Edm.String)"
 
     def __init__(self, name, searchable=True, key=False, *args, **kwargs):
@@ -138,28 +164,42 @@ class CollectionField(Field):
 
 
 class Int32Field(Field):
+    """ Int32Field
+    """
     python_type = int
 
 
 class Int64Field(Field):
+    """ Int64Field
+    """
     python_type = int
 
 
 class DoubleField(Field):
+    """ DoubleField
+    """
     python_type = float
 
 
 class BooleanField(Field):
+    """ BooleanField
+    """
     python_type = bool
 
 
 class DateTimeOffsetField(Field):
+    """ DateTimeOffsetField
+    """
     python_type = None
 
 
 class GeographyPointField(Field):
+    """ GeographyPointField
+    """
+
     def __init__(self, name, facetable=False, *args, **kwargs):
-        kwargs['facetable'] = False  # Edm.GeographyPoint fields cannot be facetable
+        # Edm.GeographyPoint fields cannot be facetable
+        kwargs['facetable'] = False
         super().__init__(name, *args, **kwargs)
 
 

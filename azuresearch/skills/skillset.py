@@ -1,3 +1,5 @@
+""" Skillset
+"""
 import json
 
 import requests
@@ -8,6 +10,8 @@ from azuresearch.skills import Skill
 
 
 class Skillset(AzureSearchObject):
+    """ Skillset
+    """
     endpoint = Endpoint("skillset")
     __name__ = "Skillset"
 
@@ -24,6 +28,8 @@ class Skillset(AzureSearchObject):
         self.description = description
 
     def to_dict(self):
+        """ to_dict
+        """
         dict = {
             'name': self.name,
             'description': self.description,
@@ -34,6 +40,8 @@ class Skillset(AzureSearchObject):
 
     @classmethod
     def load(cls, data):
+        """ load
+        """
         if type(data) is str:
             data = json.loads(data)
         if type(data) is not dict:
@@ -51,24 +59,37 @@ class Skillset(AzureSearchObject):
         return cls(name=data['name'], skills=data['skills'], description=data['description'])
 
     def create(self):
+        """ create
+        """
         result = self.endpoint.post(self.to_dict(), needs_admin=True)
         if result.status_code != requests.codes.created:
-            raise Exception("Error posting skillset. result: {}".format(result))
+            raise Exception(
+                "Error posting skillset. result: {}".format(result))
 
     def get(self):
+        """ get
+        """
         result = self.endpoint.get(endpoint=self.name, needs_admin=True)
         if result.status_code != requests.codes.ok:
-            raise Exception("Error getting skillset. Result: {}".format(result))
+            raise Exception(
+                "Error getting skillset. Result: {}".format(result))
         return result
 
     def delete(self):
+        """ delete
+        """
         result = self.endpoint.delete(endpoint=self.name, needs_admin=True)
         if result.status_code != requests.codes.no_content:
-            raise Exception("Error deleting skillset. Result: {}".format(result))
+            raise Exception(
+                "Error deleting skillset. Result: {}".format(result))
 
     def update(self):
+        """ update
+        """
         self.delete()
         return self.create()
 
     def verify(self):
+        """ verify
+        """
         return self.get()

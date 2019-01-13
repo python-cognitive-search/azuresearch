@@ -1,3 +1,5 @@
+""" index
+"""
 import json
 
 from azuresearch.base_api_call import BaseApiCall
@@ -9,6 +11,8 @@ SERVICE_NAME = 'indexes'
 
 
 class Index(BaseApiCall):
+    """ Index
+    """
     results = None
 
     def __init__(self,
@@ -53,12 +57,14 @@ class Index(BaseApiCall):
         if kwargs:
             self.params.update(kwargs)
 
-        for f in self.fields:
-            f.index_name = self.name
+        for field in self.fields:
+            field.index_name = self.name
 
         self.documents = Documents(self)
 
     def __repr__(self):
+        """ __repr__
+        """
         return "<AzureIndex: \n" \
                "index name: {name}\n" \
                "fields: {fields}\n" \
@@ -82,6 +88,8 @@ class Index(BaseApiCall):
                     defaultScoringProfile=self.default_scoring_profile)
 
     def to_dict(self):
+        """ to_dict
+        """
         return_dict = {
             "name": self.name,
             "fields": [field.to_dict() for field in self.fields],
@@ -105,6 +113,8 @@ class Index(BaseApiCall):
 
     @classmethod
     def load(cls, data):
+        """ load
+        """
         from .suggester import Suggester
         from azuresearch.analyzers.custom_analyzer import CustomAnalyzer
         from azuresearch.indexes import ScoringProfile
@@ -115,13 +125,16 @@ class Index(BaseApiCall):
             raise Exception("Failed to parse input as Dict")
 
         if 'suggesters' in data:
-            data['suggesters'] = [Suggester.load(sg) for sg in data.get("suggesters")]
+            data['suggesters'] = [Suggester.load(
+                sg) for sg in data.get("suggesters")]
 
         if 'analyzers' in data:
-            data['analyzers'] = [CustomAnalyzer.load(sg,index_name=data.get('name')) for sg in data.get('analyzers')]
+            data['analyzers'] = [CustomAnalyzer.load(
+                sg, index_name=data.get('name')) for sg in data.get('analyzers')]
 
         if 'scoringProfiles' in data:
-            data['scoring_profiles'] = [ScoringProfile.load(sp) for sp in data['scoringProfiles']]
+            data['scoring_profiles'] = [ScoringProfile.load(
+                sp) for sp in data['scoringProfiles']]
 
         if 'fields' in data:
             data['fields'] = [Field.load(fi) for fi in data['fields']]
@@ -131,48 +144,67 @@ class Index(BaseApiCall):
         return cls(**data)
 
     def create(self):
+        """ create
+        """
         return self.endpoint.post(self.to_dict(), needs_admin=True)
 
     def update(self):
+        """ update
+        """
         self.delete()
         return self.create()
 
     def get(self):
+        """ get
+        """
         return self.endpoint.get(endpoint=self.name, needs_admin=True)
 
     def delete(self):
+        """ delete
+        """
         return self.endpoint.delete(endpoint=self.name, needs_admin=True)
 
     def verify(self):
+        """ verify
+        """
         return self.get()
 
     @classmethod
     def list(cls):
+        """ list
+        """
         return Endpoint(SERVICE_NAME).get(needs_admin=True)
 
     def search(self, query):
+        """ search
+        """
         query = {
             "search": query,
             "queryType": "full",
             "searchMode": "all"
         }
-        self.results = self.endpoint.post(query, endpoint=self.name + "/docs/search")
+        self.results = self.endpoint.post(
+            query, endpoint=self.name + "/docs/search")
         return self.results
 
     def statistics(self):
-        response = self.endpoint.get(endpoint=self.name + "/stats", needs_admin=True)
+        """ statistics
+        """
+        response = self.endpoint.get(
+            endpoint=self.name + "/stats", needs_admin=True)
         if response.status_code == 200:
             self.recent_stats = response.json()
             return self.recent_stats
-        else:
-            return response
+        return response
 
     def count(self):
+        """ count
+        """
         # https://docs.microsoft.com/en-us/rest/api/searchservice/count-documents
-        response = self.endpoint.get(endpoint=self.name + "/docs/$count", needs_admin=True)
+        response = self.endpoint.get(
+            endpoint=self.name + "/docs/$count", needs_admin=True)
         if response.status_code == 200:
             response.encoding = "utf-8-sig"
             self.recent_count = int(response.text)
             return self.recent_count
-        else:
-            return response
+        return response

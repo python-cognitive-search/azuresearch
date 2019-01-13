@@ -1,9 +1,13 @@
+""" CustomAnalyzer
+"""
 import json
 
 from .abstract_analyzer import AbstractAnalyzer
 
 
 class CustomAnalyzer(AbstractAnalyzer):
+    """ CustomAnalyzer
+    """
 
     def __init__(self,
                  name,
@@ -20,6 +24,8 @@ class CustomAnalyzer(AbstractAnalyzer):
         self.token_filters = token_filters
 
     def to_dict(self):
+        """ to_dict
+        """
         return_dict = {
             "name": self.name,
             "@odata.type": self.type,
@@ -37,7 +43,9 @@ class CustomAnalyzer(AbstractAnalyzer):
         return return_dict
 
     @classmethod
-    def load(cls, data,**kwargs):
+    def load(cls, data, **kwargs):
+        """ load
+        """
         if type(data) is str:
             data = json.loads(data)
         if type(data) is not dict:

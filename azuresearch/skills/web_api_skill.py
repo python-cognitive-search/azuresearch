@@ -1,15 +1,22 @@
+""" WebApiSkill
+"""
 from azuresearch.skills import Skill
 
 WEBAPP_SKILL = "#Microsoft.Skills.Custom.WebApiSkill"
 
 
 class WebApiSkill(Skill):
+    """ WebApiSkill
+    """
 
     def __init__(self, uri, inputs, outputs, context, **kwargs):
-        super().__init__(skill_type=WEBAPP_SKILL, inputs=inputs, outputss=outputs, context=context, **kwargs)
+        super().__init__(skill_type=WEBAPP_SKILL, inputs=inputs,
+                         outputss=outputs, context=context, **kwargs)
         self.uri = uri
 
     def to_dict(self):
+        """ to_dict
+        """
         return_dict = super().to_dict()
         return_dict['uri'] = self.uri
         # add additional user generated params

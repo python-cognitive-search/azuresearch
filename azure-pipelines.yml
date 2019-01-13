@@ -22,8 +22,18 @@ jobs:
   - script: |
       python -m setup.py install
       pip install -r requirements.txt
-      pip install pytest
+      pip install pylint
       pip install haikunator
+      pylint *.py
+      pylint azuresearch/*.py
+      pylint azuresearch/analyzers/*.py
+      pylint azuresearch/indexes/*.py
+      pylint azuresearch/skills/*.py
+    displayName: 'pylint'
+    continueOnError: true
+
+  - script: |
+      pip install pytest
       pytest -v -m "not integration" --doctest-modules --junitxml=junit/test-results.xml
     displayName: 'pytest'
 
