@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "add6a5efba5407eaec6daa6000d32bfb090af22f50705281f3a198f14edb9dd8"
+            "sha256": "93467e97da787847604591a63724cb53bc530c056571756b1c03bffacdbc1c6e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,10 @@
         ]
     },
     "default": {
+        "azure-search": {
+            "editable": true,
+            "path": "."
+        },
         "certifi": {
             "hashes": [
                 "sha256:47f9c83ef4c0c621eaef743f133f09fa8a74a9b75f037e8624f83bd1b6626cb7",

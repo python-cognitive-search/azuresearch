@@ -1,7 +1,7 @@
 import pytest
 
 from azuresearch.indexes import Field, BooleanField, StringField, Int32Field, Int64Field, DoubleField, \
-    DateTimeOffsetField, GeographyPointField
+    DateTimeOffsetField, GeographyPointField, CollectionField
 from tests.test_helpers import get_json_file, ordered
 
 
@@ -98,6 +98,12 @@ def test_GeographyPoint_field_creation_dict_correct():
     field_dict = field.to_dict()
     assert field_dict['name'] == "test_field"
     assert field_dict['type'] == "Edm.GeographyPoint"
+
+def test_CollectionField_field_creation_dict_correct():
+    field = CollectionField("test_field", searchable=True, sortable=False, retrievable=True)
+    field_dict = field.to_dict()
+    assert field_dict['name'] == "test_field"
+    assert field_dict['type'] == "Collection(Edm.String)"
 
 
 def test_field_creation_equals_json():

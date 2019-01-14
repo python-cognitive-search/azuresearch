@@ -5,7 +5,8 @@ from azuresearch.azure_search_object import AzureSearchObject
 
 class Field(AzureSearchObject):
     """
-    :param name: name_of_field,
+    Defines one field in an index.
+    :param name: name of field,
     :param type: Edm.String | Collection(Edm.String) | Edm.Int32 | Edm.Int64 | Edm.Double | Edm.Boolean | Edm.DateTimeOffset | Edm.GeographyPoint,
     :param searchable: true (default where applicable) | false (only Edm.String and Collection(Edm.String) fields can be searchable),
     :param filterable: true (default) | false,
