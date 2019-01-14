@@ -2,7 +2,7 @@
 """
 
 
-class Documents(object):
+class Documents():
     """ Documents
     """
 
@@ -14,8 +14,8 @@ class Documents(object):
         """
         for field in self.index.fields:
             if field.python_type is not None and field.name in document.keys():
-                if type(document[field.name]) != field.python_type:
-                    raise Exception  # TODO: Better exceptions
+                if not isinstance(document[field.name], field.python_type):
+                    raise Exception
         return True
 
     def add(self, documents):

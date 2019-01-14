@@ -27,21 +27,21 @@ class FieldMapping(AzureSearchObject):
     def to_dict(self):
         """ to_dict
         """
-        dict = {"sourceFieldName": self.source_field_name,
-                "targetFieldName": self.target_field_name,
-                "mappingFunction": self.mapping_function}
+        dic = {"sourceFieldName": self.source_field_name,
+               "targetFieldName": self.target_field_name,
+               "mappingFunction": self.mapping_function}
 
-        dict = FieldMapping.remove_empty_values(dict)
-        return dict
+        dic = FieldMapping.remove_empty_values(dic)
+        return dic
 
     @classmethod
     def load(cls, data):
         """ load
         """
         if data:
-            if type(data) is str:
+            if isinstance(data, str):
                 data = json.loads(data)
-            if type(data) is not dict:
+            if not isinstance(data, dict):
                 raise Exception("Failed to load class")
 
             if 'sourceFieldName' not in data:

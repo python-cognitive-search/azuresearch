@@ -12,7 +12,7 @@ class MissingEnvironmentVariableError(Exception):
     """
 
 
-class Endpoint(object):
+class Endpoint():
     """ Endpoint
     """
     api_version = "2017-11-11-Preview"
@@ -85,9 +85,8 @@ class Endpoint(object):
         if data is None:
             data = {}
         logging.debug("GET request\n"
-                      "URL: {url}."
-                      "Params: {params}".format(url=self.query_path(endpoint),
-                                                params=self.query_args()))
+                      "URL: %s."
+                      "Params: %s", self.query_path(endpoint), self.query_args())
         return requests.get(
             self.query_path(endpoint),
             params=self.query_args(),
@@ -101,9 +100,8 @@ class Endpoint(object):
         if data is None:
             data = {}
         logging.debug("POST request\n"
-                      "URL: {url}."
-                      "Params: {params}".format(url=self.query_path(endpoint),
-                                                params=self.query_args()))
+                      "URL: %s."
+                      "Params: %s", self.query_path(endpoint), self.query_args())
 
         return requests.post(
             self.query_path(endpoint),
@@ -118,9 +116,8 @@ class Endpoint(object):
         if data is None:
             data = {}
         logging.debug("PUT request\n"
-                      "URL: {url}."
-                      "Params: {params}".format(url=self.query_path(endpoint),
-                                                params=self.query_args(extra)))
+                      "URL: %s."
+                      "Params: %s", self.query_path(endpoint), self.query_args(extra))
 
         return requests.put(
             self.query_path(endpoint),
@@ -135,9 +132,9 @@ class Endpoint(object):
         if data is None:
             data = {}
         logging.debug("DELETE request\n"
-                      "URL: {url}."
-                      "Params: {params}".format(url=self.query_path(endpoint),
-                                                params=self.query_args()))
+                      "URL: %s."
+                      "Params: %s", self.query_path(endpoint),
+                      self.query_args())
 
         return requests.delete(
             self.query_path(endpoint),

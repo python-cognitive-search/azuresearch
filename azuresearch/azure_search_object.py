@@ -27,31 +27,31 @@ class AzureSearchObject(ABC):
     def to_json(self):
         """ to_json
         """
-        dict = self.to_dict()
-        return json.dumps(dict)
+        dic = self.to_dict()
+        return json.dumps(dic)
 
     @classmethod
     def load(cls, data):
         """ load
         """
-        if type(data) is str:
+        if isinstance(data, str):
             data = json.loads(data)
-        if type(data) is not dict:
+        if not isinstance(data, dict):
             raise Exception("Failed to parse input as Dict")
 
         data = cls.to_snake_case_dict(data)
         return cls(**data)
 
     @classmethod
-    def remove_empty_values(cls, dict):
+    def remove_empty_values(cls, dic):
         """
-        Removes all None values and empty lists from dict
+        Removes all None values and empty lists from dic
         : return: new dict
         """
-        dict = {k: v for k, v in dict.items() if
-                (v is not None) and (not hasattr(v, '__len__') or
-                                     (hasattr(v, '__len__') and len(v) > 0))}
-        return dict
+        dic = {k: v for k, v in dic.items() if
+               (v is not None) and (not hasattr(v, '__len__') or
+                                    (hasattr(v, '__len__') and len(v) > 0))}
+        return dic
 
     @classmethod
     def to_snake_case(cls, camel_case_string):
@@ -67,17 +67,17 @@ class AzureSearchObject(ABC):
         return components[0] + ''.join(c.title() for c in components[1:])
 
     @classmethod
-    def to_snake_case_dict(cls, dict):
+    def to_snake_case_dict(cls, dic):
         """ to_snake_case_dict
         """
-        if dict:
-            dict = {cls.to_snake_case(k): v for k, v in dict.items()}
-        return dict
+        if dic:
+            dic = {cls.to_snake_case(k): v for k, v in dic.items()}
+        return dic
 
     @classmethod
-    def to_camel_case_dict(cls, dict):
+    def to_camel_case_dict(cls, dic):
         """ to_camel_case_dict
         """
-        if dict:
-            dict = {cls.to_camel_case(k): v for k, v in dict.items()}
-        return dict
+        if dic:
+            dic = {cls.to_camel_case(k): v for k, v in dic.items()}
+        return dic

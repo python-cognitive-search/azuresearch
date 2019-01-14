@@ -15,12 +15,13 @@ class DataSource(BaseApiCall):
     :param description: description of data source
     """
 
-    def __init__(self, name, connection_string, container_name, type='azureblob', description=None):
+    def __init__(self, name, connection_string, container_name,
+                 datasource_type='azureblob', description=None):
         super(DataSource, self).__init__(service_name=SERVICE_NAME)
         self.name = name
         self.connection_string = connection_string
         self.container_name = container_name
-        self.type = type
+        self.type = datasource_type
         self.description = description
 
     def to_dict(self):
