@@ -1,3 +1,5 @@
+""" ScoringProfile
+"""
 import json
 import warnings
 
@@ -7,10 +9,11 @@ from azuresearch.azure_search_object import AzureSearchObject
 class ScoringProfile(AzureSearchObject):
     '''
     A scoring profile for an index. See this link for more information:
-    taken from https://docs.microsoft.com/en-us/rest/api/searchservice/add-scoring-profiles-to-a-search-index
+    taken from
+    https://docs.microsoft.com/en-us/rest/api/searchservice/add-scoring-profiles-to-a-search-index
     '''
 
-    def __init__(self, name, text=None, functions=None,**kwargs):
+    def __init__(self, name, text=None, functions=None, **kwargs):
         super().__init__(**kwargs)
         if functions is None:
             functions = []
@@ -18,7 +21,6 @@ class ScoringProfile(AzureSearchObject):
         self.name = name
         self.text = text
         self.functions = functions
-
 
     def __repr__(self):
         return "<{classname}: {name}>".format(
@@ -50,7 +52,8 @@ class ScoringProfile(AzureSearchObject):
         if 'text' in data:
             data['text'] = ScoringProfileText.load(data['text'])
         if 'functions' in data:
-            data['functions'] = [ScoringProfileFunction.load(spf) for spf in data['functions']]
+            data['functions'] = [ScoringProfileFunction.load(
+                spf) for spf in data['functions']]
 
         data = cls.to_snake_case_dict(data)
 
@@ -97,7 +100,8 @@ class ScoringProfileFunction(AzureSearchObject):
     '''
     A function to perform for scoring.
     See this link for more information:
-    https://docs.microsoft.com/en-us/rest/api/searchservice/add-scoring-profiles-to-a-search-index#bkmk_indexref    '''
+    https://docs.microsoft.com/en-us/rest/api/
+    searchservice/add-scoring-profiles-to-a-search-index#bkmk_indexref'''
 
     def __init__(self,
                  type,
@@ -143,8 +147,9 @@ class ScoringProfileFunction(AzureSearchObject):
 
     def _validate_interpolation(self):
         if self.interpolation and self.interpolation not in interpolations:
-            warnings.warn("{interpolation} not in list of supported interpolations: {interpolations}".format(
-                interpolation=self.interpolation, interpolations=interpolations))
+            warnings.warn(
+                "{interpolation} not in list of supported interpolations: {interpolations}".format(
+                    interpolation=self.interpolation, interpolations=interpolations))
 
 
 function_types = {
@@ -160,7 +165,10 @@ interpolations = {
     "quadratic",
     "logarithmic"
 }
-# ``` https://docs.microsoft.com/en-us/rest/api/searchservice/add-scoring-profiles-to-a-search-index#bkmk_template
+
+# pylint: disable=C0301
+# ``` https://docs.microsoft.com/en-us/rest/api/
+# searchservice/add-scoring-profiles-to-a-search-index#bkmk_template
 
 # "magnitude": {
 #     "boostingRangeStart":  # ,

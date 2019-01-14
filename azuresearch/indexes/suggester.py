@@ -1,22 +1,30 @@
+""" Suggester
+"""
 import json
 
 from azuresearch.base_api_call import BaseApiCall
 
 
 class Suggester(BaseApiCall):
+    """ Suggester
+    """
 
-    def __init__(self, name, source_fields, search_mode="analyzingInfixMatching",**kwargs):
-        super().__init__("indexes",**kwargs)
+    def __init__(self, name, source_fields, search_mode="analyzingInfixMatching", **kwargs):
+        super().__init__("indexes", **kwargs)
         self.name = name
         self.source_fields = source_fields
         self.search_mode = search_mode
 
     def __repr__(self):
+        """ __repr__
+        """
         return "<Suggester: {name}>".format(
             name=self.name
         )
 
     def to_dict(self):
+        """ to_dict
+        """
         return_dict = {
             "name": self.name,
             "sourceFields": [field for field in self.source_fields],
@@ -33,10 +41,13 @@ class Suggester(BaseApiCall):
         return return_dict
 
     def suggest(self, query, extra=None):
+        """ suggest
+        """
         query = {
             "search": query,
             "queryType": "full",
             "searchMode": "analyzingInfixMatching"
         }
-        self.results = self.endpoint.post(query, endpoint=self.name + "/docs/suggest")
+        self.results = self.endpoint.post(
+            query, endpoint=self.name + "/docs/suggest")
         return self.results
