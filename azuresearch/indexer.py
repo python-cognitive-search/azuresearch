@@ -98,7 +98,9 @@ class Indexer(BaseApiCall):
                 "Error resetting indexer. result: {result}".format(result=result))
 
 
-class IndexerSchedule(object):
+class IndexerSchedule():
+    """ IndexerSchedule
+    """
     """ IndexerSchedule
     """
 

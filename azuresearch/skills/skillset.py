@@ -29,7 +29,10 @@ class Skillset(AzureSearchObject):
         self.description = description
 
     def to_dict(self):
+    """" to_dict
+    """"
         return_dict = {
+
             'name': self.name,
             'description': self.description,
             'skills': [skill.to_dict() for skill in self.skills]
