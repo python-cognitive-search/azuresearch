@@ -1,6 +1,7 @@
 """ BaseApiCall
 """
-from abc import ABC, abstractmethod
+import json
+import logging
 
 import requests
 
@@ -8,8 +9,19 @@ from azuresearch.azure_search_object import AzureSearchObject
 from azuresearch.service import Endpoint
 
 
-class BaseApiCall(AzureSearchObject):
+class AzureSearchServiceException(Exception):
+    """
+    Exception for any Azure Search related calls
+    """
 
+
+class ServiceDoesNotExistException(Exception):
+    """
+    Exception for trying to delete a service which doesn't exist
+    """
+
+
+class BaseApiCall(AzureSearchObject):
     """
     Abstract class for wrapping common calls to Azure Search services
     """
@@ -26,6 +38,9 @@ class BaseApiCall(AzureSearchObject):
         else:
             self.endpoint = Endpoint(service_name)
 
+    def to_dict(self):
+        pass
+
     def create(self):
         """ create
         """
@@ -33,31 +48,47 @@ class BaseApiCall(AzureSearchObject):
         if result.status_code != requests.codes.created:
             raise Exception(
                 "Error posting {service_name}. result: {result}"
-                .format(service_name=self.service_name, result=result))
+                    .format(service_name=self.service_name, result=json.load(result.content)))
+        else:
+            logging.debug("Successfully created service {}".format(self.service_name))
 
     def get(self):
         """ get
         """
         result = self.endpoint.get(endpoint=self.name, needs_admin=True)
         if result.status_code != requests.codes.ok:
-            raise Exception(
+            raise AzureSearchServiceException(
                 "Error getting {service_name}. result: {result}"
-                .format(service_name=self.service_name, result=result))
+                    .format(service_name=self.service_name, result=result.content))
         return result
+
+    def delete_if_exists(self):
+        try:
+            self.delete()
+        except ServiceDoesNotExistException:
+            pass
 
     def delete(self):
         """ delete
         """
         result = self.endpoint.delete(endpoint=self.name, needs_admin=True)
-        if result.status_code != requests.codes.no_content:
-            raise Exception(
+        if result.status_code == requests.codes.not_found:
+            raise ServiceDoesNotExistException(
                 "Error deleting {service_name}. result: {result}"
-                .format(service_name=self.service_name, result=result))
+                    .format(service_name=self.service_name, result=result.content))
+
+        if result.status_code != requests.codes.no_content:
+            raise ServiceDoesNotExistException(
+                "Error deleting {service_name}. result: {result}"
+                    .format(service_name=self.service_name, result=result.content))
 
     def update(self):
         """ update
         """
-        self.delete()
+        try:
+            self.delete()
+        except AzureSearchServiceException as e:
+            logging.warning("Failed to delete service. Return result = {}".format(e))
         return self.create()
 
     def verify(self):

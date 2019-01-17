@@ -1,6 +1,9 @@
 """ DataSource
 """
+import json
+
 from azuresearch.base_api_call import BaseApiCall
+from azuresearch.service import Endpoint
 
 SERVICE_NAME = "datasources"
 
@@ -16,8 +19,8 @@ class DataSource(BaseApiCall):
     """
 
     def __init__(self, name, connection_string, container_name,
-                 datasource_type='azureblob', description=None):
-        super(DataSource, self).__init__(service_name=SERVICE_NAME)
+                 datasource_type='azureblob', description=None,**kwargs):
+        super(DataSource, self).__init__(service_name=SERVICE_NAME,**kwargs)
         self.name = name
         self.connection_string = connection_string
         self.container_name = container_name
@@ -40,3 +43,25 @@ class DataSource(BaseApiCall):
         # Remove None values
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
+
+    @classmethod
+    def load(cls, data):
+        """ load
+        """
+        if isinstance(data, str):
+            data = json.loads(data)
+        if not isinstance(data, dict):
+            raise Exception("Failed to parse input as Dict")
+
+
+        data['connection_string'] = data.get("credentials").get("connectionString")
+        data['container_name'] = data.get("container").get("name")
+        data = cls.to_snake_case_dict(data)
+        return cls(**data)
+
+
+    @classmethod
+    def list(cls):
+        """ list
+        """
+        response =  Endpoint(SERVICE_NAME).get(needs_admin=True)

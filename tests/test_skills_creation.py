@@ -68,11 +68,11 @@ def test_skillset_to_dict_correct():
     skill2 = get_simple_skill("type2")
     skill3 = get_simple_skill("type3")
     skillset = Skillset(name="my_skillset", skills=[skill1, skill2, skill3], description="desc")
-    dict = skillset.to_dict()
-    assert dict['name'] == "my_skillset"
-    assert dict['skills'][0]['@odata.type'] == 'type1'
-    assert dict['skills'][1]['@odata.type'] == 'type2'
-    assert dict['skills'][2]['@odata.type'] == 'type3'
+    obj_dict = skillset.to_dict()
+    assert obj_dict['name'] == "my_skillset"
+    assert obj_dict['skills'][0]['@odata.type'] == 'type1'
+    assert obj_dict['skills'][1]['@odata.type'] == 'type2'
+    assert obj_dict['skills'][2]['@odata.type'] == 'type3'
 
 
 def test_load_to_dict_same():

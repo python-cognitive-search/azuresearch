@@ -116,3 +116,7 @@ dmypy.json
 
 .idea/
 .ipynb_checkpoints/
+
+
+# config
+blob_config.json
