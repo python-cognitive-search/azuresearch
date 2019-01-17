@@ -8,13 +8,17 @@ from azuresearch.azure_search_object import AzureSearchObject
 path = os.path.dirname(os.path.abspath(__file__))
 
 
-def get_json_file(name):
+def get_json_file(name,dir = 'output_jsons'):
     """
     Returns the content of a test json
     :param name: name of file
+    :param dir: folder in which this file resides
     :return: json contents
     """
-    return json.load(open(os.path.join(path, 'output_jsons', name)))
+    if dir:
+        return json.load(open(os.path.join(path, dir, name)))
+    else:
+        return json.load(open(os.path.join(path,name)))
 
 def get_fake_name():
     """
@@ -42,7 +46,7 @@ def serialize(obj):
     """JSON serializer for objects not serializable by default json code"""
 
     if isinstance(obj, AzureSearchObject):
-        dict = obj.to_dict()
-        return dict
+        obj_dict = obj.to_dict()
+        return obj_dict
     else:
         return obj.__dict__

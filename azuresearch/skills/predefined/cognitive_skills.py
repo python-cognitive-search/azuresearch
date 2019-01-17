@@ -25,7 +25,7 @@ class KeyPhraseExtractionSkill(Skill):
     :param max_key_phrase_count: The maximum number of key phrases to produce.
     """
 
-    def __init__(self, inputs=None, outputs=None, context="/document/pages/*", default_language_code='en',
+    def __init__(self, inputs=None, outputs=None, context="/document", default_language_code='en',
                  max_key_phrase_count=30, **kwargs):
         if inputs is None:
             inputs = self.get_default_inputs()

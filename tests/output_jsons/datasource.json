@@ -1,0 +1,10 @@
+{
+    "name" : "my_datasource",
+    "description" : "Demo files to demonstrate cognitive search capabilities.",
+    "type" : "azureblob",
+    "credentials" :
+    { "connectionString" :
+      "my_connection_string"
+    },
+    "container" : { "name" : "my_container" }
+}

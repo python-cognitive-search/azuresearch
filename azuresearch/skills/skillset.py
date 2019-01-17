@@ -15,7 +15,8 @@ class Skillset(AzureSearchObject):
     endpoint = Endpoint("skillset")
     __name__ = "Skillset"
 
-    def __init__(self, skills, name=None, description=None):
+    def __init__(self, skills, name=None, description=None, **kwargs):
+        super().__init__(**kwargs)
 
         if skills is None or len(skills) == 0:
             raise Exception("A skillset must have at least one skill")
@@ -28,15 +29,19 @@ class Skillset(AzureSearchObject):
         self.description = description
 
     def to_dict(self):
-        """ to_dict
-        """
-        dict = {
+        return_dict = {
             'name': self.name,
             'description': self.description,
             'skills': [skill.to_dict() for skill in self.skills]
         }
-        dict = AzureSearchObject.remove_empty_values(dict)
-        return dict
+        # add additional user generated params
+        return_dict.update(self.params)
+        # make all params camelCase (to be sent correctly to Azure Search
+        return_dict = self.to_camel_case_dict(return_dict)
+
+        # Remove None values
+        return_dict = self.remove_empty_values(return_dict)
+        return return_dict
 
     @classmethod
     def load(cls, data):

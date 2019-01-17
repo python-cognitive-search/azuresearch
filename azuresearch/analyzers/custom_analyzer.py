@@ -17,7 +17,7 @@ class CustomAnalyzer(AbstractAnalyzer):
                  tokenizer=None,
                  token_filters=None,
                  **kwargs):
-        super().__init__(index_name=index_name, name=name, type=analyzer_type, **kwargs)
+        super().__init__(index_name=index_name, name=name, analyzer_type=analyzer_type, **kwargs)
 
         self.tokenizer = tokenizer
         self.char_filters = char_filters
