@@ -30,6 +30,7 @@ jobs:
       pylint azuresearch/indexes/*.py
       pylint azuresearch/skills/*.py
     displayName: 'pylint'
+    continueOnError: true
 
   - script: |
       pip install pytest

@@ -40,7 +40,6 @@ class BaseApiCall(AzureSearchObject):
 
     def to_dict(self):
         pass
-
     def create(self):
         """ create
         """

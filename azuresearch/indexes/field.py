@@ -10,6 +10,7 @@ class Field(AzureSearchObject):
     """
     Defines one field in an index.
     :param name: name of field,
+    :param type: Edm.String | Collection(Edm.String) | Edm.Int32 | Edm.Int64 | Edm.Double |
                  Edm.Boolean | Edm.DateTimeOffset | Edm.GeographyPoint,
     :param searchable: true (default where applicable) | false (only Edm.String and
                        Collection(Edm.String) fields can be searchable),
