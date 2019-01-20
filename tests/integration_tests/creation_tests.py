@@ -1,4 +1,6 @@
 from azuresearch.data_source import DataSource
+from azuresearch.indexes import Index
+from azuresearch.skills import Skillset
 from tests.test_helpers import get_json_file
 
 
@@ -10,10 +12,8 @@ class DataSourceCreationTesting():
         datasource.delete_if_exists()
         datasource.create()
 
-
         datasources = DataSource.list()
         print(datasources)
-
 
         datasource.update()
 
@@ -25,13 +25,37 @@ class DataSourceCreationTesting():
 class IndexCreationTesting():
 
     def run(self):
-        pass
+        index = Index.load(get_json_file("index.json"))
+        index.delete_if_exists()
+        index.create()
+
+        indexes = Index.list()
+        print(indexes)
+
+        index.update()
+
+        index.delete()
+
+        print("Successfully deleted, created, updated and deleted an index")
+
 
 
 class SkillsetCreationTesting():
 
     def run(self):
-        pass
+        skillset = Skillset.load(get_json_file("skillset.json"))
+        skillset.delete_if_exists()
+        skillset.create()
+
+        skillsets = Skillset.list()
+        print(skillsets)
+
+        skillset.update()
+
+        skillset.delete()
+
+        print("Successfully deleted, created, updated and deleted a skillset")
+
 
 class IndexerCreationTesting():
 

@@ -8,15 +8,16 @@ from azuresearch.base_api_call import BaseApiCall
 class Indexer(BaseApiCall):
     """ Indexer
     """
+    SERVICE_NAME = 'indexers'
 
     def __init__(self, name, data_source_name, target_index_name,
                  skillset_name, field_mappings=None,
                  output_field_mappings=None, schedule=None,
                  disabled=False, parameters=None, **params):
-        super(Indexer, self).__init__(service_name="indexer")
+        super().__init__(service_name=Indexer.SERVICE_NAME,**params)
         self.output_field_mappings = output_field_mappings
         self.field_mappings = field_mappings
-        self.skill_set_name = skillset_name
+        self.skillset_name = skillset_name
         self.target_index_name = target_index_name
         self.data_source_name = data_source_name
         self.name = name
@@ -24,15 +25,6 @@ class Indexer(BaseApiCall):
         self.disabled = disabled
         self.parameters = parameters
 
-        if self.field_mappings is None:
-            self.field_mappings = []
-        if self.output_field_mappings is None:
-            self.output_field_mappings = []
-
-        if params:
-            self.params = params['kwargs']
-        else:
-            self.params = {}
 
     def __repr__(self):
         """ __repr__
@@ -47,7 +39,7 @@ class Indexer(BaseApiCall):
                    name=self.name,
                    data_source_name=self.data_source_name,
                    target_index_name=self.target_index_name,
-                   skillset_name=self.skill_set_name,
+                   skillset_name=self.skillset_name,
                    field_mappings=self.field_mappings,
                    output_field_mappings=self.output_field_mappings)
 
@@ -59,8 +51,8 @@ class Indexer(BaseApiCall):
             "dataSourceName": self.data_source_name,
             "targetIndexName": self.target_index_name,
             "skillsetName": self.skillset_name,
-            "fieldMappings": [fm.to_dict() for fm in self.field_mappings],
-            "outputFieldMappings": [fm.to_dict() for fm in self.output_field_mappings],
+            "fieldMappings": [fm.to_dict() for fm in self.field_mappings] if self.field_mappings else None,
+            "outputFieldMappings": [fm.to_dict() for fm in self.output_field_mappings] if self.output_field_mappings else None,
             "schedule": self.schedule,
             "disabled": self.disabled,
             "parameters": self.parameters
@@ -71,7 +63,7 @@ class Indexer(BaseApiCall):
 
         # Remove None values
         output_dict = BaseApiCall.remove_empty_values(output_dict)
-        return dict
+        return output_dict
 
     def run(self):
         """ run

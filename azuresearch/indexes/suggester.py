@@ -4,7 +4,6 @@ import json
 
 from azuresearch.base_api_call import BaseApiCall
 
-
 class Suggester(BaseApiCall):
     """ Suggester
     """
@@ -27,7 +26,7 @@ class Suggester(BaseApiCall):
         """
         return_dict = {
             "name": self.name,
-            "sourceFields": [field for field in self.source_fields],
+            "sourceFields": [field for field in self.source_fields] if self.source_fields else None,
             "searchMode": self.search_mode
         }
 

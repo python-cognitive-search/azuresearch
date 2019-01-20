@@ -4,6 +4,7 @@ import copy
 import logging
 import os
 
+import json
 import requests
 
 
@@ -142,3 +143,5 @@ class Endpoint():
             headers=self.query_headers(needs_admin),
             json=data
         )
+
+

@@ -4,16 +4,14 @@ import json
 
 from azuresearch.base_api_call import BaseApiCall
 from azuresearch.document import Documents
-from azuresearch.service import Endpoint
 from .field import Field
-
-SERVICE_NAME = 'indexes'
 
 
 class Index(BaseApiCall):
     """ Index
     """
     results = None
+    SERVICE_NAME = 'indexes'
 
     def __init__(self,
                  name,
@@ -27,22 +25,7 @@ class Index(BaseApiCall):
                  default_scoring_profile=None,
                  cors_options=None, **kwargs
                  ):
-        super(Index, self).__init__(SERVICE_NAME)
-        if fields is None:
-            fields = []
-        if analyzers is None:
-            analyzers = []
-        if suggesters is None:
-            suggesters = []
-        if scoring_profiles is None:
-            scoring_profiles = []
-        if tokenizers is None:
-            tokenizers = []
-        if token_filters is None:
-            token_filters = []
-        if char_filters is None:
-            char_filters = []
-
+        super().__init__(Index.SERVICE_NAME, **kwargs)
         self.name = name
         self.fields = fields
         self.suggesters = suggesters
@@ -53,9 +36,6 @@ class Index(BaseApiCall):
         self.char_filters = char_filters
         self.default_scoring_profile = default_scoring_profile
         self.cors_options = cors_options
-        self.params = {}
-        if kwargs:
-            self.params.update(kwargs)
 
         for field in self.fields:
             field.index_name = self.name
@@ -93,13 +73,13 @@ class Index(BaseApiCall):
         return_dict = {
             "name": self.name,
             "fields": [field.to_dict() for field in self.fields],
-            "scoringProfiles": [sp.to_dict() for sp in self.scoring_profiles],
+            "scoringProfiles": [sp.to_dict() for sp in self.scoring_profiles] if self.scoring_profiles else None,
+            "suggesters": [sg.to_dict() for sg in self.suggesters] if self.suggesters else None,
+            "analyzers": [an.to_dict() for an in self.analyzers] if self.analyzers else None,
+            "tokenizers": [tk.to_dict() for tk in self.tokenizers] if self.tokenizers else None,
+            "tokenFilters": [tkf.to_dict() for tkf in self.token_filters] if self.token_filters else None,
+            "charFilters": [cf.to_dict() for cf in self.char_filters] if self.char_filters else None,
             "corsOptions": self.cors_options,
-            "suggesters": [sg.to_dict() for sg in self.suggesters],
-            "analyzers": [an.to_dict() for an in self.analyzers],
-            "tokenizers": [tk.to_dict() for tk in self.tokenizers],
-            "tokenFilters": [tkf.to_dict() for tkf in self.token_filters],
-            "charFilters": [cf.to_dict() for cf in self.char_filters],
             "defaultScoringProfile": self.default_scoring_profile
         }
         # add additional user generated params
@@ -143,37 +123,11 @@ class Index(BaseApiCall):
 
         return cls(**data)
 
-    def create(self):
-        """ create
-        """
-        return self.endpoint.post(self.to_dict(), needs_admin=True)
-
-    def update(self):
-        """ update
-        """
-        self.delete()
-        return self.create()
-
-    def get(self):
-        """ get
-        """
-        return self.endpoint.get(endpoint=self.name, needs_admin=True)
-
-    def delete(self):
-        """ delete
-        """
-        return self.endpoint.delete(endpoint=self.name, needs_admin=True)
 
     def verify(self):
         """ verify
         """
         return self.get()
-
-    @classmethod
-    def list(cls):
-        """ list
-        """
-        return Endpoint(SERVICE_NAME).get(needs_admin=True)
 
     def search(self, query):
         """ search

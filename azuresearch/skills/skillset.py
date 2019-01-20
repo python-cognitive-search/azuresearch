@@ -4,19 +4,17 @@ import json
 
 import requests
 
-from azuresearch.azure_search_object import AzureSearchObject
-from azuresearch.service import Endpoint
+from azuresearch.base_api_call import BaseApiCall
 from azuresearch.skills import Skill
 
 
-class Skillset(AzureSearchObject):
+class Skillset(BaseApiCall):
     """ Skillset
     """
-    endpoint = Endpoint("skillset")
-    __name__ = "Skillset"
+    SERVICE_NAME = 'skillsets'
 
     def __init__(self, skills, name=None, description=None, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(service_name=Skillset.SERVICE_NAME, **kwargs)
 
         if skills is None or len(skills) == 0:
             raise Exception("A skillset must have at least one skill")
@@ -29,8 +27,9 @@ class Skillset(AzureSearchObject):
         self.description = description
 
     def to_dict(self):
-    """" to_dict
-    """"
+
+        """ to_dict
+        """
         return_dict = {
 
             'name': self.name,
@@ -45,6 +44,7 @@ class Skillset(AzureSearchObject):
         # Remove None values
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
+
 
     @classmethod
     def load(cls, data):
@@ -65,39 +65,3 @@ class Skillset(AzureSearchObject):
             data['description'] = ''
 
         return cls(name=data['name'], skills=data['skills'], description=data['description'])
-
-    def create(self):
-        """ create
-        """
-        result = self.endpoint.post(self.to_dict(), needs_admin=True)
-        if result.status_code != requests.codes.created:
-            raise Exception(
-                "Error posting skillset. result: {}".format(result))
-
-    def get(self):
-        """ get
-        """
-        result = self.endpoint.get(endpoint=self.name, needs_admin=True)
-        if result.status_code != requests.codes.ok:
-            raise Exception(
-                "Error getting skillset. Result: {}".format(result))
-        return result
-
-    def delete(self):
-        """ delete
-        """
-        result = self.endpoint.delete(endpoint=self.name, needs_admin=True)
-        if result.status_code != requests.codes.no_content:
-            raise Exception(
-                "Error deleting skillset. Result: {}".format(result))
-
-    def update(self):
-        """ update
-        """
-        self.delete()
-        return self.create()
-
-    def verify(self):
-        """ verify
-        """
-        return self.get()

@@ -5,7 +5,7 @@ from azuresearch.skills import Skill, SkillOutput, SkillInput
 predefined_skills = {
     "KeyPhraseExtractionSkill": "#Microsoft.Skills.Text.KeyPhraseExtractionSkill",
     "LanguageDetectionSkill": "#Microsoft.Skills.Text.LanguageDetectionSkill",
-    "EntithRecognitionSkill": "#Microsoft.Skills.Text.EntityRecognitionSkill",
+    "EntityRecognitionSkill": "#Microsoft.Skills.Text.EntityRecognitionSkill",
     "MergeSkill": "Microsoft.Skills.Text.MergeSkill",
     "SplitSkill": "Microsoft.Skills.Text.SplitSkill",
     "SentimentSkill": "Microsoft.Skills.Text.SentimentSkill",

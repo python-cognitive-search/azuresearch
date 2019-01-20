@@ -40,6 +40,7 @@ class BaseApiCall(AzureSearchObject):
 
     def to_dict(self):
         pass
+
     def create(self):
         """ create
         """
@@ -94,3 +95,21 @@ class BaseApiCall(AzureSearchObject):
         """ verify
         """
         return self.get()
+
+    @classmethod
+    def list(cls):
+        """ list
+        """
+        service_name = cls.SERVICE_NAME
+        result = Endpoint(service_name).get(needs_admin=True)
+        if result.status_code != requests.codes.ok:
+            raise Exception(
+                "Error getting {service}. Result: {res}".format(service=service_name,result=result))
+
+        sources = json.loads(result.content)['value']
+
+        insts = []
+        for source in sources:
+            inst = cls.load(source)
+            insts.append(inst)
+        return insts

@@ -31,7 +31,7 @@ class ScoringProfile(AzureSearchObject):
         return_dict = {
             "name": self.name,
             "text": self.text.to_dict(),
-            "functions": [func.to_dict() for func in self.functions]
+            "functions": [func.to_dict() for func in self.functions] if self.functions else None
         }
 
         # add additional user generated params

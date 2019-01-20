@@ -5,7 +5,6 @@ import json
 from azuresearch.base_api_call import BaseApiCall
 from azuresearch.service import Endpoint
 
-SERVICE_NAME = "datasources"
 
 
 class DataSource(BaseApiCall):
@@ -17,10 +16,11 @@ class DataSource(BaseApiCall):
     :param type: type of data source. default is 'azureblob'
     :param description: description of data source
     """
+    SERVICE_NAME = "datasources"
 
     def __init__(self, name, connection_string, container_name,
                  datasource_type='azureblob', description=None,**kwargs):
-        super(DataSource, self).__init__(service_name=SERVICE_NAME,**kwargs)
+        super(DataSource, self).__init__(service_name=DataSource.SERVICE_NAME,**kwargs)
         self.name = name
         self.connection_string = connection_string
         self.container_name = container_name
@@ -55,13 +55,9 @@ class DataSource(BaseApiCall):
 
 
         data['connection_string'] = data.get("credentials").get("connectionString")
+
         data['container_name'] = data.get("container").get("name")
         data = cls.to_snake_case_dict(data)
         return cls(**data)
 
 
-    @classmethod
-    def list(cls):
-        """ list
-        """
-        response =  Endpoint(SERVICE_NAME).get(needs_admin=True)

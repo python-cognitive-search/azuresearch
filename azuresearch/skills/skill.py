@@ -50,13 +50,13 @@ class Skill(AzureSearchObject):
         """
         return_dict = {
             "@odata.type": self.skill_type,
-            "inputs": [inp.to_dict() for inp in self.inputs],
+            "inputs": [inp.to_dict() for inp in self.inputs] ,
             "outputs": [outp.to_dict() for outp in self.outputs],
             "context": self.context
         }
         # add additional user generated params
         return_dict.update(self.params)
-        # make all params camelCase (to be sent correctly to Azure Search
+         # make all params camelCase (to be sent correctly to Azure Search
         return_dict = self.to_camel_case_dict(return_dict)
 
         # Remove None values

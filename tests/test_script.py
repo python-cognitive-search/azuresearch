@@ -1,35 +1,54 @@
-# import json
-# import os
-#
-# index_data = json.load(open(
-#     os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output_jsons/hotels.index.json')))
-# document_data = json.load(open(
-#     os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output_jsons/hotels.documents.json')))
-#
-# from azuresearch import indexes
-#
-# print("Create Python Index -----------------")
-# index = indexes.Index.load(index_data)
-#
-# print("Update index in Azure -----------------")
-# print(index.update().text)
-#
-# print("List indexes from Azure -----------------")
-# index_list = indexes.Index.list().json()
-# print(index_list)
-# assert len(index_list['value']) == 1
-#
-# print("Load documents into Azure -----------------")
-# response = index.documents.add(document_data)
-# print(response.text)
-#
-# # print(index.update().text)
-# print("Query -----------------")
-# results = index.search("expensive")
-# print(results)
-# print(results.text)
-#
-# print("Cleanup -----------------")
-# i = index.delete()
-# print(i.status_code)
-# print(i.text)
+import pytest
+
+from azuresearch.data_source import DataSource
+from azuresearch.indexer import Indexer
+from azuresearch.indexes import StringField, CollectionField, Index
+from azuresearch.skills import SkillInput, Skillset
+from azuresearch.skills.predefined.cognitive_skills import EntityRecognitionSkill, KeyPhraseExtractionSkill
+from tests.test_helpers import get_json_file
+
+@pytest.mark.integration
+def test_pipeline():
+
+    #create datasource. json holds the datasource params (name, connection string etc.)
+
+    config = get_json_file("blob_config.json",dir='integration_tests')
+    datasource = DataSource.load(config)
+    datasource.delete_if_exists()
+    datasource.create()
+
+    # define fields and index
+    field1 = StringField("id",key=True)
+    field2 = CollectionField("keyPhrases")
+    field3 = StringField("content")
+
+
+    index = Index("my-index",fields = [field1,field2,field3])
+    index.delete_if_exists()
+    index.create()
+
+    # Define skills
+    ner_skill = KeyPhraseExtractionSkill()
+    skillset = Skillset(skills=[ner_skill],name="my-skillset",description="skillset with one skill")
+    skillset.delete_if_exists()
+    skillset.create()
+
+
+    ## Define Indexer
+    indexer = Indexer(name="my-indexer",
+                      data_source_name=datasource.name,
+                      target_index_name=index.name,
+                      skillset_name=skillset.name
+                      )
+    indexer.delete_if_exists()
+    indexer.create()
+
+    ## Search something
+    index.search("Microsoft")
+
+
+    ## Delete all
+    datasource.delete()
+    index.delete()
+    skillset.delete()
+    indexer.delete()
