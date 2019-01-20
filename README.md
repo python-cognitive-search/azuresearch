@@ -43,8 +43,8 @@ Example usage (WIP):
     index.create()
 
     # Define skills
-    ner_skill = KeyPhraseExtractionSkill()
-    skillset = Skillset(skills=[ner_skill],name="my-skillset",description="skillset with one skill")
+    keyph_skill = KeyPhraseExtractionSkill()
+    skillset = Skillset(skills=[keyph_skill],name="my-skillset",description="skillset with one skill")
     skillset.delete_if_exists()
     skillset.create()
 
