@@ -21,3 +21,48 @@ Features:
 
 
 originally forked from https://github.com/python-azure-search/python-azure-search
+
+
+Example usage (WIP):
+
+```python
+    #create datasource. json holds the datasource params (name, connection string etc.)
+
+    datasource = DataSource.load(name="datasource",connection_string="xxx",container_name="cont")
+    datasource.delete_if_exists()
+    datasource.create()
+
+    # define fields and index
+    field1 = StringField("id",key=True)
+    field2 = CollectionField("keyPhrases")
+    field3 = StringField("content")
+
+
+    index = Index("my-index",fields = [field1,field2,field3])
+    index.delete_if_exists()
+    index.create()
+
+    # Define skills
+    ner_skill = KeyPhraseExtractionSkill()
+    skillset = Skillset(skills=[ner_skill],name="my-skillset",description="skillset with one skill")
+    skillset.delete_if_exists()
+    skillset.create()
+
+
+    ## Define Indexer
+    indexer = Indexer(name="my-indexer", data_source_name=datasource.name,
+                      target_index_name=index.name, skillset_name=skillset.name)
+    indexer.delete_if_exists()
+    indexer.create()
+
+    ## Search something
+    index.search("Microsoft")
+
+
+    ## Delete all
+    datasource.delete()
+    index.delete()
+    skillset.delete()
+    indexer.delete()
+
+```
