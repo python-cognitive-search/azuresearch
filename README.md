@@ -56,8 +56,8 @@ Example usage (WIP):
     indexer.create()
 
     ## Search something
-    index.search("Microsoft")
-
+    response = index.search("Microsoft")
+    print(response)
 
     ## Delete all
     datasource.delete()
