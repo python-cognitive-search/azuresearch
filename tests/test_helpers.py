@@ -8,7 +8,7 @@ from azuresearch.azure_search_object import AzureSearchObject
 path = os.path.dirname(os.path.abspath(__file__))
 
 
-def get_json_file(name,dir = 'output_jsons'):
+def get_json_file(name, path=path, dir='output_jsons'):
     """
     Returns the content of a test json
     :param name: name of file
@@ -18,7 +18,8 @@ def get_json_file(name,dir = 'output_jsons'):
     if dir:
         return json.load(open(os.path.join(path, dir, name)))
     else:
-        return json.load(open(os.path.join(path,name)))
+        return json.load(open(os.path.join(path, name)))
+
 
 def get_fake_name():
     """
@@ -27,6 +28,7 @@ def get_fake_name():
     """
     haikunator = Haikunator()
     return haikunator.haikunate()
+
 
 def ordered(obj):
     """

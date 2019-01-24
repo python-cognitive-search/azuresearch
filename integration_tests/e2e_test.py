@@ -1,22 +1,26 @@
+import os
 import time
 
 import pytest
 
 from azuresearch.data_source import DataSource
 from azuresearch.field_mapping import FieldMapping
+from azuresearch.indexers import IndexerParameters
 from azuresearch.indexers.indexer import Indexer
 from azuresearch.indexes import StringField, CollectionField, Index
 from azuresearch.skills import Skillset
 from azuresearch.skills.predefined.cognitive_skills import EntityRecognitionSkill, KeyPhraseExtractionSkill, \
-    LanguageDetectionSkill, SplitSkill, OCRSkill
+    LanguageDetectionSkill, SplitSkill
 from tests.test_helpers import get_json_file
+
+path = os.path.dirname(os.path.abspath(__file__))
 
 
 @pytest.mark.integration
 def test_pipeline():
     # create datasource. json holds the datasource params (name, connection string etc.)
 
-    config = get_json_file("blob_config.json", dir='integration_tests')
+    config = get_json_file("blob_config.json", path=path, dir=None)
     datasource = DataSource.load(config)
     datasource.delete_if_exists()
     datasource.create()
@@ -28,9 +32,9 @@ def test_pipeline():
     field4 = CollectionField("keyPhrases")
     field5 = CollectionField("organizations")
     field6 = StringField("translatedText")
-    field7 = CollectionField("myOcrText")
+    # field7 = CollectionField("myOcrText")
 
-    fields = [field1, field2, field3, field4, field5, field6, field7]
+    fields = [field1, field2, field3, field4, field5, field6]  # , field7]
 
     index = Index("my-index", fields=fields)
     index.delete_if_exists()
@@ -40,13 +44,13 @@ def test_pipeline():
     ner_skill = EntityRecognitionSkill(categories=["Organization"])
     language_detection_skill = LanguageDetectionSkill()
     split_skill = SplitSkill(maximum_page_length=4000)
-    ocr_skill = OCRSkill()
+    # ocr_skill = OCRSkill()
     keyphrases_skill = KeyPhraseExtractionSkill()
 
     skillset = Skillset(skills=[ner_skill,
                                 language_detection_skill,
                                 split_skill,
-                                ocr_skill,
+                                # ocr_skill,
                                 keyphrases_skill],
                         name="my-skillset",
                         description="skillset with one skill")
@@ -61,9 +65,11 @@ def test_pipeline():
     output_field_mappings = [FieldMapping("/document/organizations", "organizations"),
                              FieldMapping("/document/pages/*/keyphrases/*", "keyphrases"),
                              FieldMapping("/document/languageCode", "languageCode"),
-                             FieldMapping("/document/normalized_images/*/myOcrText/", "myOcrText")]
+                             # FieldMapping("/document/normalized_images/*/myOcrText/", "myOcrText")
+                             ]
 
     ## Define Indexer
+    config = IndexerParameters()
     indexer = Indexer(name="my-indexer",
                       data_source_name=datasource.name,
                       target_index_name=index.name,
@@ -76,12 +82,14 @@ def test_pipeline():
 
     status = indexer.get_status()
     while status.get('status') == 'running':
-        time.sleep(10)
+        print(status.get("status"))
+        time.sleep(3) # wait for 3 seconds until rechecking
 
     indexer.verify()
 
     ## Search something
-    index.search("Microsoft")
+    res = index.search("Microsoft")
+    print(res)
 
     ## Delete all
     datasource.delete()
