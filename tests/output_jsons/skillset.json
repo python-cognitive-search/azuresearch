@@ -58,7 +58,7 @@
       "context": "/document/pages/*",
       "inputs": [
         {
-          "name": "text", "source": "/document/pages/*"
+          "name": "text", "source": "/document/pages"
         },
         {
           "name":"languageCode", "source": "/document/languageCode"

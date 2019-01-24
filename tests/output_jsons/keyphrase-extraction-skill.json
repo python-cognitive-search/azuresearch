@@ -4,7 +4,7 @@
   "inputs": [
     {
       "name": "text",
-      "source": "/document/text"
+      "source": "/document/pages/*"
     },
     {
       "name": "languageCode",

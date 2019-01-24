@@ -1,6 +1,8 @@
 import copy
 import json
 
+import pytest
+
 from azuresearch.indexes import Index, Field
 from tests.test_helpers import get_json_file, ordered
 
@@ -28,7 +30,8 @@ def test_index_to_dict():
 
 
 def test_index_with_no_fields_raises_exception():
-    test_index = Index("test_index")
+    with pytest.raises(Exception):
+        test_index = Index("test_index")
 
 
 def test_load_index_correct_dict():

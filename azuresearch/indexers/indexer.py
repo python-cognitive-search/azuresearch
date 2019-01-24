@@ -1,8 +1,13 @@
 """ Indexer
 """
+import json
+
 import requests
 
+from azuresearch.azure_search_object import AzureSearchObject
 from azuresearch.base_api_call import BaseApiCall
+from azuresearch.indexers import IndexerSchedule
+from azuresearch.indexers.indexer_parameters import IndexerParameters
 
 
 class Indexer(BaseApiCall):
@@ -13,8 +18,8 @@ class Indexer(BaseApiCall):
     def __init__(self, name, data_source_name, target_index_name,
                  skillset_name, field_mappings=None,
                  output_field_mappings=None, schedule=None,
-                 disabled=False, parameters=None, **params):
-        super().__init__(service_name=Indexer.SERVICE_NAME,**params)
+                 disabled=False, parameters=IndexerParameters(), **params):
+        super().__init__(service_name=Indexer.SERVICE_NAME, **params)
         self.output_field_mappings = output_field_mappings
         self.field_mappings = field_mappings
         self.skillset_name = skillset_name
@@ -24,7 +29,6 @@ class Indexer(BaseApiCall):
         self.schedule = schedule
         self.disabled = disabled
         self.parameters = parameters
-
 
     def __repr__(self):
         """ __repr__
@@ -36,34 +40,52 @@ class Indexer(BaseApiCall):
                "skillset_name: {skillset_name}\n" \
                "field_mappings: {field_mappings}\n" \
                "output_field_mappings: {output_field_mappings}".format(
-                   name=self.name,
-                   data_source_name=self.data_source_name,
-                   target_index_name=self.target_index_name,
-                   skillset_name=self.skillset_name,
-                   field_mappings=self.field_mappings,
-                   output_field_mappings=self.output_field_mappings)
+            name=self.name,
+            data_source_name=self.data_source_name,
+            target_index_name=self.target_index_name,
+            skillset_name=self.skillset_name,
+            field_mappings=self.field_mappings,
+            output_field_mappings=self.output_field_mappings)
 
     def to_dict(self):
         """ to_dict
         """
-        output_dict = {
+        return_dict = {
             "name": self.name,
             "dataSourceName": self.data_source_name,
             "targetIndexName": self.target_index_name,
             "skillsetName": self.skillset_name,
             "fieldMappings": [fm.to_dict() for fm in self.field_mappings] if self.field_mappings else None,
-            "outputFieldMappings": [fm.to_dict() for fm in self.output_field_mappings] if self.output_field_mappings else None,
-            "schedule": self.schedule,
+            "outputFieldMappings": [fm.to_dict() for fm in
+                                    self.output_field_mappings] if self.output_field_mappings else None,
+            "schedule": self.schedule.to_dict() if self.schedule else None,
             "disabled": self.disabled,
-            "parameters": self.parameters
+            "parameters": self.parameters.to_dict()
         }
 
-        # Add additional arguments
-        output_dict.update(self.params)
+        # add additional user generated params
+        return_dict.update(self.params)
+        # make all params camelCase (to be sent correctly to Azure Search
+        return_dict = self.to_camel_case_dict(return_dict)
 
         # Remove None values
-        output_dict = BaseApiCall.remove_empty_values(output_dict)
-        return output_dict
+        return_dict = self.remove_empty_values(return_dict)
+        return return_dict
+
+    @classmethod
+    def load(cls, data):
+        if type(data) is str:
+            data = json.loads(data)
+        if type(data) is not dict:
+            raise Exception("Failed to parse input as Dict")
+
+        if 'parameters' in data:
+            data['parameters'] = IndexerParameters.load(data['parameters'])
+        if 'schedule' in data:
+            data['schedule'] = IndexerSchedule.load(data['schedule'])
+        data = cls.to_snake_case_dict(data)
+
+        return cls(**data)
 
     def run(self):
         """ run
@@ -89,30 +111,15 @@ class Indexer(BaseApiCall):
             raise Exception(
                 "Error resetting indexer. result: {result}".format(result=result))
 
-
-class IndexerSchedule():
-    """ IndexerSchedule
-    """
-    """ IndexerSchedule
-    """
-
-    def __init__(self, interval, start_time=None):
+    def get_status(self):
         """
-    :param interval:
-           Required. A duration value that specifies an interval or period for indexer runs.
-           The smallest allowed interval is five minutes; the longest is one day.
-           It must be formatted as an XSD "dayTimeDuration" value
-           (a restricted subset of an ISO 8601 duration value).
-           The pattern for this is: "P[nD][T[nH][nM]]". Examples: PT15M for every 15 minutes,
-           PT2H for every 2 hours.
-    :param start_time: Optional.
-           A UTC datetime when the indexer should start running.
-       """
-        self.interval = interval
-        self.start_time = start_time
-
-    def to_dict(self):
-        """ to_dict
+        Get status of running indexer
+        :return:
         """
-        return {"interval": self.interval,
-                "startTime": self.start_time}
+        result = self.endpoint.get(endpoint=self.name+"/status")
+        if result.status_code != requests.codes.ok:
+            raise Exception(
+                "Error retrieving indexer status. result: {result}".format(result=result))
+
+        return json.loads(result.content)
+

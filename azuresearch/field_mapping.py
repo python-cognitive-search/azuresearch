@@ -9,7 +9,7 @@ class FieldMapping(AzureSearchObject):
     """ FieldMapping
     """
 
-    def __init__(self, source_field_name, target_field_name=None, mapping_function=None):
+    def __init__(self, source_field_name, target_field_name=None, mapping_function=None,**kwargs):
         """
         :param source_field_name: which represents a field in your data source.
                This property is required.
@@ -20,6 +20,7 @@ class FieldMapping(AzureSearchObject):
                See here for more info:
                https://docs.microsoft.com/en-us/azure/search/search-indexer-field-mappings#mappingFunctions
         """
+        super().__init__(**kwargs)
         self.source_field_name = source_field_name
         self.target_field_name = target_field_name
         self.mapping_function = mapping_function
@@ -27,30 +28,15 @@ class FieldMapping(AzureSearchObject):
     def to_dict(self):
         """ to_dict
         """
-        dic = {"sourceFieldName": self.source_field_name,
-               "targetFieldName": self.target_field_name,
-               "mappingFunction": self.mapping_function}
+        return_dict = {"source_field_name": self.source_field_name,
+               "target_field_name": self.target_field_name,
+               "mapping_function": self.mapping_function}
 
-        dic = FieldMapping.remove_empty_values(dic)
-        return dic
+        # add additional user generated params
+        return_dict.update(self.params)
+        # make all params camelCase (to be sent correctly to Azure Search
+        return_dict = self.to_camel_case_dict(return_dict)
 
-    @classmethod
-    def load(cls, data):
-        """ load
-        """
-        if data:
-            if isinstance(data, str):
-                data = json.loads(data)
-            if not isinstance(data, dict):
-                raise Exception("Failed to load class")
-
-            if 'sourceFieldName' not in data:
-                data['sourceFieldName'] = None
-            if 'targetFieldName' not in data:
-                data['targetFieldName'] = None
-            if 'mappingFunction' not in data:
-                data['mappingFunction'] = None
-            return cls(source_field_name=data['sourceFieldName'],
-                       target_field_name=data['targetFieldName'],
-                       mapping_function=data['mappingFunction'])
-        raise Exception("data is Null")
+        # Remove None values
+        return_dict = self.remove_empty_values(return_dict)
+        return return_dict
