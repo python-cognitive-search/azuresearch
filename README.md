@@ -55,9 +55,16 @@ Example usage (WIP):
     indexer.delete_if_exists()
     indexer.create()
 
+    status = indexer.get_status()
+    while status.get('status') == 'running':
+        print(status.get("status"))
+        time.sleep(10) # wait for x seconds until rechecking
+    
+    indexer.verify()
+    
     ## Search something
-    response = index.search("Microsoft")
-    print(response)
+    res = index.search("Microsoft")
+    print(res)
 
     ## Delete all
     datasource.delete()
