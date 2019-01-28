@@ -60,7 +60,7 @@ class BaseApiCall(AzureSearchObject):
             raise AzureSearchServiceException(
                 "Error getting {service_name}. result: {result}"
                     .format(service_name=self.service_name, result=result.content))
-        return result
+        return result.content
 
     def delete_if_exists(self):
         try:

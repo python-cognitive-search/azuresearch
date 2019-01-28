@@ -6,7 +6,7 @@ import requests
 
 from azuresearch.base_api_call import BaseApiCall
 from azuresearch.skills import Skill
-
+from azuresearch.field_mapping import FieldMapping 
 
 class Skillset(BaseApiCall):
     """ Skillset
@@ -65,3 +65,10 @@ class Skillset(BaseApiCall):
             data['description'] = ''
 
         return cls(name=data['name'], skills=data['skills'], description=data['description'])
+
+    def get_output_field_mappings(self):
+      ofm = []
+      for skill in self.skills:
+        ofm.append(skill.get_output_field_mappings())
+        return ofm
+

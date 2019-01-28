@@ -3,15 +3,14 @@
 import json
 
 from azuresearch.azure_search_object import AzureSearchObject
-
+from azuresearch.field_mapping import FieldMapping
 
 class Skill(AzureSearchObject):
-    """ Skill
+    """ An Azure search skill
     """
 
     def __init__(self, **kwargs):
         """
-
         :param skill_type: the type of skill (@odata.type)
         :param inputs: A list of objects of type SkillInput which represent the desire inputs
                        for this skill
@@ -23,23 +22,28 @@ class Skill(AzureSearchObject):
         """
         super().__init__(**kwargs)
 
-        if "inputs" not in kwargs:
-            raise Exception("Inputs must be provided")
-        inputs = kwargs['inputs']
-        if not isinstance(inputs[0], SkillInput):
-            raise TypeError("Inputs should be of type SkillInput")
+        # if "inputs" not in kwargs:
+        #    raise Exception("Inputs must be provided")
+        self.inputs = []
+        if "inputs" in kwargs:
+            inputs = kwargs['inputs']
+            if not isinstance(inputs[0], SkillInput):
+                raise TypeError("Inputs should be of type SkillInput")
+            self.inputs = inputs
+
         if "outputs" not in kwargs:
             raise Exception("outputs must be provided")
         outputs = kwargs['outputs']
+        # TODO check all outputs type
         if not isinstance(outputs[0], SkillOutput):
             raise TypeError("Outputs should be of type SkillOutput")
+        self.outputs = outputs
 
         if "@odata.type" in kwargs:
             self.skill_type = kwargs.get("@odata.type")
         else:
             self.skill_type = kwargs.get("skill_type")
-        self.inputs = inputs
-        self.outputs = outputs
+
         self.context = kwargs.get("context")
 
         self.params = {k: v for (k, v) in kwargs.items() if
@@ -48,6 +52,9 @@ class Skill(AzureSearchObject):
     def to_dict(self):
         """ to_dict
         """
+
+        # todo: add check that object is valid, now that the context, input & output are not part
+        # of the init method
         return_dict = {
             "@odata.type": self.skill_type,
             "inputs": [inp.to_dict() for inp in self.inputs] ,
@@ -62,6 +69,65 @@ class Skill(AzureSearchObject):
         # Remove None values
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
+
+    def get_output_field_mappings(self):
+      ofm = []
+      for output in self.outputs:
+          multiple_suffix = ""
+          if output.returns_multiple_results:
+            multiple_suffix = "/*"
+          ofm.append(FieldMapping("/document/" + output.target_name + multiple_suffix, output.name))
+      return ofm
+
+    def add_source(self, other, include_list=None) : 
+        """
+        :param other: the source skill, which its outputs will be this skill's inputs
+        :param include_list: if exists, list of sources to take, otherwise, take all
+        """
+        # Iterate on all outputs as candidates for input
+        for output in other.outputs:
+            should_add = True
+            # if specified explicitly which output to take, check if the current one is listed
+            if include_list:
+                if output.name not in include_list:
+                    should_add = False
+
+            if should_add:
+                found = False
+                multiple_suffix = ""
+                if output.returns_multiple_results:
+                  multiple_suffix = "/*"
+                src = "/document/" + output.target_name + multiple_suffix
+               
+                for inpt in self.inputs:
+                  if inpt.name == output.name:
+                      found = True
+                      inpt.source = src
+                  
+                if not found:
+                    newInput = SkillInput(
+                        output.name, src)
+                    self.inputs.append(newInput)
+        #self.context = other.context
+        
+    def remove_source(self, skill=None, source_name=None):
+        """ remove the
+        """
+        if skill is None and source_name is None:
+            raise Exception("please provide either a skill or a source name")
+        if skill and source_name:
+            raise Exception("please provide only a skill or a source name")
+
+        if skill:
+            for output in skill.outputs:
+                for input in self.inputs:
+                    if output.name == input.name:
+                        self.inputs.remove(input)
+
+        if source_name:
+            for input in self.inputs:
+                if source_name == input.name:
+                    self.inputs.remove(input)
 
     @classmethod
     def load(cls, data):
@@ -119,12 +185,14 @@ class SkillInput(AzureSearchObject):
 class SkillOutput(AzureSearchObject):
     """
     Defines the output of a skill
+    :param returns_multiple_results: if true means that there are multiple results under the result name
     """
-
-    def __init__(self, name, target_name, **kwargs):
+    
+    def __init__(self, name, target_name, returns_multiple_results = False, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.target_name = target_name
+        self.returns_multiple_results = returns_multiple_results
 
     def to_dict(self):
         """ to_dict

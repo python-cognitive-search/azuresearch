@@ -22,6 +22,7 @@ def test_pipeline():
 
     config = get_json_file("blob_config.json", path=path, dir=None)
     datasource = DataSource.load(config)
+    # delete to support iterations
     datasource.delete_if_exists()
     datasource.create()
 
@@ -47,6 +48,14 @@ def test_pipeline():
     # ocr_skill = OCRSkill()
     keyphrases_skill = KeyPhraseExtractionSkill()
 
+    # dependency list
+    # 1 ner_skill
+    # 1 language_detection_skill
+    # 1 split_skill
+    # 2 splitskill , language code-> keyphrases_skill
+    keyphrases_skill.add_source(split_skill)
+    keyphrases_skill.add_source(language_detection_skill)
+
     skillset = Skillset(skills=[ner_skill,
                                 language_detection_skill,
                                 split_skill,
@@ -57,16 +66,18 @@ def test_pipeline():
     skillset.delete_if_exists()
     skillset.create()
 
-    field_mappings = [FieldMapping(source_field_name="metadata_storage_path",
-                                   target_field_name="id",
-                                   mapping_function={"name": "base64Encode"}),
-                      FieldMapping("content", "content")]
+    # redundant: moved to within the indexer
+    # field_mappings = [FieldMapping(source_field_name="metadata_storage_path",
+    #                                target_field_name="id",
+    #                                mapping_function={"name": "base64Encode"}),
+    #                   FieldMapping("content", "content")]
 
-    output_field_mappings = [FieldMapping("/document/organizations", "organizations"),
-                             FieldMapping("/document/pages/*/keyphrases/*", "keyphrases"),
-                             FieldMapping("/document/languageCode", "languageCode"),
-                             # FieldMapping("/document/normalized_images/*/myOcrText/", "myOcrText")
-                             ]
+    # redundant: moved to the skills themselves
+    # output_field_mappings = [FieldMapping("/document/organizations", "organizations"),
+    #                          FieldMapping("/document/pages/*/keyphrases/*", "keyphrases"),
+    #                          FieldMapping("/document/languageCode", "languageCode"),
+    #                          # FieldMapping("/document/normalized_images/*/myOcrText/", "myOcrText")
+    #                          ]
 
     ## Define Indexer
     config = IndexerParameters()
@@ -74,8 +85,8 @@ def test_pipeline():
                       data_source_name=datasource.name,
                       target_index_name=index.name,
                       skillset_name=skillset.name,
-                      field_mappings=field_mappings,
-                      output_field_mappings=output_field_mappings)
+                      #field_mappings=field_mappings,
+                      output_field_mappings=skillset.get_output_field_mappings())
 
     indexer.delete_if_exists()
     indexer.create()

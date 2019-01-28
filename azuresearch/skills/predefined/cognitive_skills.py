@@ -27,6 +27,9 @@ class KeyPhraseExtractionSkill(Skill):
     See Full list of supported languages.
     :param max_key_phrase_count: The maximum number of key phrases to produce.
     """
+    class SupportedTypes:
+      TEXT = "text"
+      LANGUAGE_CODE = "languageCode"  
 
     def __init__(self, inputs=None, outputs=None, context="/document/pages/*", default_language_code='en',
                  max_key_phrase_count=30, **kwargs):
@@ -67,6 +70,11 @@ class LanguageDetectionSkill(Skill):
     (for example, the Sentiment Analysis skill or Text Split skill).
     """
 
+    class SupportedTypes:
+        LANGUAGE_CODE = "languageCode"
+        lANGUAGE_NAME = "languageName"  
+        SCORE = "score"
+
     def __init__(self, inputs=None, outputs=None, context=None, **kwargs):
         if inputs is None:
             inputs = self.get_default_inputs()
@@ -83,9 +91,10 @@ class LanguageDetectionSkill(Skill):
         return inputs
 
     def get_default_outputs(self):
-        outputs = [SkillOutput(name="languageCode", target_name="languageCode"),
-                   SkillOutput(name="languageName", target_name="languageName"),
-                   SkillOutput(name="score", target_name="score")
+        outputs = [SkillOutput(name=self.SupportedTypes.LANGUAGE_CODE, target_name="languageCode"),
+                   SkillOutput(name=self.SupportedTypes.lANGUAGE_NAME,
+                               target_name="languageName"),
+                   SkillOutput(name=self.SupportedTypes.SCORE, target_name="score")
                    ]
         return outputs
 
@@ -94,9 +103,18 @@ class EntityRecognitionSkill(Skill):
     """
     The Entity Recognition skill extracts entities of different types from text.
     """
+    class SupportedTypes:
+       PERSON = "person"
+       LOCATION = "location"  
+       ORGANIZATION = "organization"
+       QUANITITY = "quantity"
+       DATETIME = "datetime"
+       URL = "url"
+       EMAIL = "email"
 
     def __init__(self, inputs=None, outputs=None, context=None,
-                 categories=["Person", "Location", "Organization", "Quantity", "Datetime", "URL", "Email"],
+                 categories=["Person", "Location", "Organization",
+                             "Quantity", "Datetime", "URL", "Email"],
                  default_language_code='en',
                  minimum_precision=None, include_typeless_entities=False, **kwargs):
         if inputs is None:
@@ -146,6 +164,8 @@ class MergeSkill(Skill):
     :param insert_post_tag: String to be included after every insertion.
     The default value is " ". To omit the space, set the value to "".
      """
+    class SupportedTypes():
+       MERGED_TEXT = "mergedText"
 
     def __init__(self, inputs=None, outputs=None, context=None, insert_pre_tag=" ", insert_post_tag=" ", **kwargs):
         params = {"insertPreTag": insert_pre_tag,
@@ -164,12 +184,13 @@ class MergeSkill(Skill):
 
     def get_default_inputs(self):
         inputs = [SkillInput("text", "/document/content"),
-                  SkillInput("itemsToInsert", "/document/normalized_images/*/text"),
+                  SkillInput("itemsToInsert",
+                             "/document/normalized_images/*/text"),
                   SkillInput("offsets", "/document/normalized_images/*/contentOffset")]
         return inputs
 
     def get_default_outputs(self):
-        outputs = [SkillOutput("mergedText", "merged_text")]
+        outputs = [SkillOutput(self.SupportedTypes.MERGED_TEXT, "merged_text")]
         return outputs
 
 
@@ -192,6 +213,8 @@ class SplitSkill(Skill):
     Providing a language code is useful to avoid cutting a word in half for non-space languages such as Chinese,
     Japanese, and Korean.
     """
+    class SupportedTypes():
+       TEXT_ITEMS = "textItems"
 
     def __init__(self, inputs=None, outputs=None, context=None, text_split_mode='pages', maximum_page_length=None,
                  default_language_code='en', **kwargs):
@@ -222,7 +245,7 @@ class SplitSkill(Skill):
         return inputs
 
     def get_default_outputs(self):
-        outputs = [SkillOutput("textItems", "pages")]
+        outputs = [SkillOutput(self.SupportedTypes.TEXT_ITEMS, "pages", True)]
         return outputs
 
 
@@ -240,6 +263,8 @@ class SentimentSkill(Skill):
     Providing a language code is useful to avoid cutting a word in half for non-space languages such as Chinese,
     Japanese, and Korean.
     """
+    class SupportedTypes():
+      SCORE = "score"
 
     def __init__(self, inputs=None, outputs=None, context=None, text_split_mode='pages', maximum_page_length=None,
                  default_language_code='en', **kwargs):
@@ -253,7 +278,8 @@ class SentimentSkill(Skill):
         if outputs is None:
             outputs = self.get_default_outputs()
 
-        super().__init__(predefined_skills['SentimentSkill'], inputs, outputs, context, **params)
+        super().__init__(
+            predefined_skills['SentimentSkill'], inputs, outputs, context, **params)
 
     def get_default_inputs(self):
         logging.debug("Using default inputs")
@@ -264,7 +290,7 @@ class SentimentSkill(Skill):
         return inputs
 
     def get_default_outputs(self):
-        outputs = [SkillOutput("score", "mysentiment")]
+        outputs = [SkillOutput(self.SupportedTypes.SCORE, "mysentiment")]
         return outputs
 
 
@@ -300,10 +326,12 @@ class ImageAnalysisSkill(Skill):
     """
 
     def __init__(self, inputs=None, outputs=None, context="/document/normalized_images/*",
-                 visual_features=["Tags", "Faces", "Categories", "Adult", "Description", "ImageType", "Color"],
+                 visual_features=["Tags", "Faces", "Categories",
+                                  "Adult", "Description", "ImageType", "Color"],
                  details=['Celebrities', 'Landmarks'],
                  default_language_code='en', **kwargs):
-        params = {"defaultLanguageCode": default_language_code, "visualFeatures": visual_features, "details": details}
+        params = {"defaultLanguageCode": default_language_code,
+                  "visualFeatures": visual_features, "details": details}
         if kwargs:
             params.update(kwargs)
 
@@ -313,7 +341,8 @@ class ImageAnalysisSkill(Skill):
         if outputs is None:
             outputs = self.get_default_outputs(visual_features)
 
-        super().__init__(predefined_skills['ImageAnalysisSkill'], inputs, outputs, context, **params)
+        super().__init__(
+            predefined_skills['ImageAnalysisSkill'], inputs, outputs, context, **params)
 
     def get_default_inputs(self):
         logging.debug("Using default inputs")
@@ -324,7 +353,8 @@ class ImageAnalysisSkill(Skill):
     def get_default_outputs(self, categories):
         outputs = []
         for category in categories:
-            so = SkillOutput(name=category.lower(), target_name=category.lower())
+            so = SkillOutput(name=category.lower(),
+                             target_name=category.lower())
             outputs.append(so)
         return outputs
 
@@ -346,7 +376,10 @@ class OCRSkill(Skill):
     :param textExtractionAlgorithm :	"printed" or "handwritten". The "handwritten" text recognition OCR algorithm
     is currently in preview and only supported in English.
     """
-
+    class SupportedTypes:
+      TEXT = "text"
+      LAYOUT_TEXT = "layoutText"
+      
     def __init__(self, inputs=None, outputs=None, context="/document/normalized_images/*",
                  default_language_code='en', detect_orientation=True, text_extraction_algorithm="printed", **kwargs):
         params = {"defaultLanguageCode": default_language_code,
@@ -374,8 +407,8 @@ class OCRSkill(Skill):
         return inputs
 
     def get_default_outputs(self):
-        outputs = [SkillOutput("text", "myOcrText"),
-                   SkillOutput("layoutText", "myLayoutText")
+        outputs = [SkillOutput(self.SupportedTypes.TEXT, "myOcrText"),
+                   SkillOutput(self.SupportedTypes.LAYOUT_TEXT, "myLayoutText")
                    ]
         return outputs
 
