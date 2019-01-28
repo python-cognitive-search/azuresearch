@@ -8,7 +8,7 @@ from azuresearch.azure_search_object import AzureSearchObject
 from azuresearch.base_api_call import BaseApiCall
 from azuresearch.indexers import IndexerSchedule
 from azuresearch.indexers.indexer_parameters import IndexerParameters
-
+from azuresearch.field_mapping import FieldMapping
 
 class Indexer(BaseApiCall):
     """ Indexer
@@ -29,6 +29,11 @@ class Indexer(BaseApiCall):
         self.schedule = schedule
         self.disabled = disabled
         self.parameters = parameters
+
+        self.field_mappings = [FieldMapping(source_field_name="metadata_storage_path",
+          target_field_name="id",
+          mapping_function={"name": "base64Encode"}),
+          FieldMapping("content", "content")]
 
     def __repr__(self):
         """ __repr__
