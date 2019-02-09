@@ -6,7 +6,8 @@ import requests
 
 from azuresearch.base_api_call import BaseApiCall
 from azuresearch.skills import Skill
-from azuresearch.field_mapping import FieldMapping 
+from azuresearch.field_mapping import FieldMapping
+
 
 class Skillset(BaseApiCall):
     """ Skillset
@@ -27,7 +28,6 @@ class Skillset(BaseApiCall):
         self.description = description
 
     def to_dict(self):
-
         """ to_dict
         """
         return_dict = {
@@ -44,7 +44,6 @@ class Skillset(BaseApiCall):
         # Remove None values
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
-
 
     @classmethod
     def load(cls, data):
@@ -67,8 +66,7 @@ class Skillset(BaseApiCall):
         return cls(name=data['name'], skills=data['skills'], description=data['description'])
 
     def get_output_field_mappings(self):
-      ofm = []
-      for skill in self.skills:
-        ofm.append(skill.get_output_field_mappings())
+        ofm = []
+        for skill in self.skills:
+            ofm = ofm + skill.output_field_mapping
         return ofm
-
