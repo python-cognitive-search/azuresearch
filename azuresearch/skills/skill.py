@@ -5,6 +5,7 @@ import json
 from azuresearch.azure_search_object import AzureSearchObject
 from azuresearch.field_mapping import FieldMapping
 
+
 class Skill(AzureSearchObject):
     """ An Azure search skill
     """
@@ -45,9 +46,10 @@ class Skill(AzureSearchObject):
             self.skill_type = kwargs.get("skill_type")
 
         self.context = kwargs.get("context")
+        self.output_field_mapping = kwargs.get("output_field_mapping")
 
         self.params = {k: v for (k, v) in kwargs.items() if
-                       k not in ['skill_type', '@odata.type', 'inputs', 'outputs', 'context']}
+                       k not in ['skill_type', '@odata.type', 'inputs', 'outputs', 'context', 'output_field_mapping']}
 
     def to_dict(self):
         """ to_dict
@@ -57,77 +59,68 @@ class Skill(AzureSearchObject):
         # of the init method
         return_dict = {
             "@odata.type": self.skill_type,
-            "inputs": [inp.to_dict() for inp in self.inputs] ,
+            "inputs": [inp.to_dict() for inp in self.inputs],
             "outputs": [outp.to_dict() for outp in self.outputs],
             "context": self.context
         }
         # add additional user generated params
         return_dict.update(self.params)
-         # make all params camelCase (to be sent correctly to Azure Search
+        # make all params camelCase (to be sent correctly to Azure Search
         return_dict = self.to_camel_case_dict(return_dict)
 
         # Remove None values
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
 
-    def get_output_field_mappings(self):
-      ofm = []
-      for output in self.outputs:
-          multiple_suffix = ""
-          if output.returns_multiple_results:
-            multiple_suffix = "/*"
-          ofm.append(FieldMapping("/document/" + output.target_name + multiple_suffix, output.name))
-      return ofm
-
-    def add_source(self, other, include_list=None) : 
-        """
-        :param other: the source skill, which its outputs will be this skill's inputs
-        :param include_list: if exists, list of sources to take, otherwise, take all
-        """
-        # Iterate on all outputs as candidates for input
-        for output in other.outputs:
-            should_add = True
-            # if specified explicitly which output to take, check if the current one is listed
-            if include_list:
-                if output.name not in include_list:
-                    should_add = False
-
-            if should_add:
-                found = False
-                multiple_suffix = ""
-                if output.returns_multiple_results:
-                  multiple_suffix = "/*"
-                src = "/document/" + output.target_name + multiple_suffix
-               
-                for inpt in self.inputs:
-                  if inpt.name == output.name:
-                      found = True
-                      inpt.source = src
-                  
-                if not found:
-                    newInput = SkillInput(
-                        output.name, src)
-                    self.inputs.append(newInput)
-        #self.context = other.context
-        
-    def remove_source(self, skill=None, source_name=None):
-        """ remove the
-        """
-        if skill is None and source_name is None:
-            raise Exception("please provide either a skill or a source name")
-        if skill and source_name:
-            raise Exception("please provide only a skill or a source name")
-
-        if skill:
-            for output in skill.outputs:
-                for input in self.inputs:
-                    if output.name == input.name:
-                        self.inputs.remove(input)
-
-        if source_name:
-            for input in self.inputs:
-                if source_name == input.name:
-                    self.inputs.remove(input)
+    # def add_source(self, other, include_list=None):
+    #    """
+    #    :param other: the source skill, which its outputs will be this skill's inputs
+    #    :param include_list: if exists, list of sources to take, otherwise, take all
+    #    """
+    #    # Iterate on all outputs as candidates for input
+    #    for output in other.outputs:
+    #        should_add = True
+    #        # if specified explicitly which output to take, check if the current one is listed
+    #        if include_list:
+    #            if output.name not in include_list:
+    #                should_add = False
+#
+    #        if should_add:
+    #            found = False
+    #            multiple_suffix = ""
+    #            if output.returns_multiple_results:
+    #                multiple_suffix = "/*"
+    #            src = "/document/" + output.target_name + multiple_suffix
+#
+    #            for inpt in self.inputs:
+    #                if inpt.name == output.name:
+    #                    found = True
+    #                    inpt.source = src
+#
+    #            if not found:
+    #                newInput = SkillInput(
+    #                    output.name, src)
+    #                self.inputs.append(newInput)
+    #    #self.context = other.context
+#
+    # def remove_source(self, skill=None, source_name=None):
+    #    """ remove the
+    #    """
+    #    if skill is None and source_name is None:
+    #        raise Exception("please provide either a skill or a source name")
+    #    if skill and source_name:
+    #        raise Exception("please provide only a skill or a source name")
+#
+    #    if skill:
+    #        for output in skill.outputs:
+    #            for input in self.inputs:
+    #                if output.name == input.name:
+    #                    self.inputs.remove(input)
+#
+    #    if source_name:
+    #        for input in self.inputs:
+    #            if source_name == input.name:
+    #                self.inputs.remove(input)
 
     @classmethod
     def load(cls, data):
@@ -187,8 +180,8 @@ class SkillOutput(AzureSearchObject):
     Defines the output of a skill
     :param returns_multiple_results: if true means that there are multiple results under the result name
     """
-    
-    def __init__(self, name, target_name, returns_multiple_results = False, **kwargs):
+
+    def __init__(self, name, target_name, returns_multiple_results=False, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.target_name = target_name
