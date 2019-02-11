@@ -6,7 +6,7 @@ from tests.test_helpers import get_json_file, ordered
 
 
 def test_field_creation_dict_correct():
-    field = Field(name="test_field", type="Edm.String", index_name="test_index", searchable=True, filterable=True,
+    field = Field(name="test_field", field_type="Edm.String", index_name="test_index", searchable=True, filterable=True,
                   retrievable=True, sortable=True,
                   facetable=True,
                   key=True)
@@ -23,20 +23,22 @@ def test_field_creation_dict_correct():
 
 def test_field_with_no_type_raises_exception():
     with pytest.raises(ValueError):
-        Field(name="test_field",type=None)
+        Field(name="test_field", type=None)
+
 
 def test_field_with_wrong_type_raises_exception():
     with pytest.raises(ValueError):
-        Field(name="test_field",type="MyFunkyType")
+        Field(name="test_field", type="MyFunkyType")
+
 
 def test_field_with_empty_name_raises_exception():
     with pytest.raises(ValueError):
         BooleanField(name="")
 
+
 def test_field_with_none_name_raises_exception():
     with pytest.raises(ValueError):
         BooleanField(name=None)
-
 
 
 def test_string_field_creation_dict_correct():
@@ -53,7 +55,8 @@ def test_string_field_creation_dict_correct():
 
 
 def test_int32_field_creation_dict_correct():
-    field = Int32Field("test_field", searchable=True, sortable=False, retrievable=True)
+    field = Int32Field("test_field", searchable=True,
+                       sortable=False, retrievable=True)
     field_dict = field.to_dict()
     assert field_dict['name'] == "test_field"
     assert field_dict['type'] == "Edm.Int32"
@@ -66,41 +69,48 @@ def test_int32_field_creation_dict_correct():
 
 
 def test_int64_field_creation_dict_correct():
-    field = Int64Field("test_field", searchable=True, sortable=False, retrievable=True)
+    field = Int64Field("test_field", searchable=True,
+                       sortable=False, retrievable=True)
     field_dict = field.to_dict()
     assert field_dict['name'] == "test_field"
     assert field_dict['type'] == "Edm.Int64"
 
 
 def test_double_field_creation_dict_correct():
-    field = DoubleField("test_field", searchable=True, sortable=False, retrievable=True)
+    field = DoubleField("test_field", searchable=True,
+                        sortable=False, retrievable=True)
     field_dict = field.to_dict()
     assert field_dict['name'] == "test_field"
     assert field_dict['type'] == "Edm.Double"
 
 
 def test_boolean_field_creation_dict_correct():
-    field = BooleanField("test_field", searchable=True, sortable=False, retrievable=True)
+    field = BooleanField("test_field", searchable=True,
+                         sortable=False, retrievable=True)
     field_dict = field.to_dict()
     assert field_dict['name'] == "test_field"
     assert field_dict['type'] == "Edm.Boolean"
 
 
 def test_DateTimeOffset_field_creation_dict_correct():
-    field = DateTimeOffsetField("test_field", searchable=True, sortable=False, retrievable=True)
+    field = DateTimeOffsetField(
+        "test_field", searchable=True, sortable=False, retrievable=True)
     field_dict = field.to_dict()
     assert field_dict['name'] == "test_field"
     assert field_dict['type'] == "Edm.DateTimeOffset"
 
 
 def test_GeographyPoint_field_creation_dict_correct():
-    field = GeographyPointField("test_field", searchable=True, sortable=False, retrievable=True)
+    field = GeographyPointField(
+        "test_field", searchable=True, sortable=False, retrievable=True)
     field_dict = field.to_dict()
     assert field_dict['name'] == "test_field"
     assert field_dict['type'] == "Edm.GeographyPoint"
 
+
 def test_CollectionField_field_creation_dict_correct():
-    field = CollectionField("test_field", searchable=True, sortable=False, retrievable=True)
+    field = CollectionField("test_field", searchable=True,
+                            sortable=False, retrievable=True)
     field_dict = field.to_dict()
     assert field_dict['name'] == "test_field"
     assert field_dict['type'] == "Collection(Edm.String)"

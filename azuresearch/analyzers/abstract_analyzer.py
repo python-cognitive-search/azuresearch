@@ -1,9 +1,10 @@
 """ abstract analyzer
 """
 import logging
-from abc import ABC, abstractmethod
 
 from azuresearch.azure_search_object import AzureSearchObject
+
+# pylint: disable=abstract-method
 
 
 class AbstractAnalyzer(AzureSearchObject):
@@ -19,6 +20,7 @@ class AbstractAnalyzer(AzureSearchObject):
     def test(self, text):
         """ test
         """
+        # pylint: disable=maybe-no-member
         body = {"analyzer": self.type, "text": text}
         logging.info("Testing analyzer: %s with text: %s", self.type, text)
         return self.endpoint.get(data=body, endpoint=self.index_name, needs_admin=True)
@@ -26,7 +28,7 @@ class AbstractAnalyzer(AzureSearchObject):
     def update(self, allow_index_downtime=False):
         """ update
         """
-
+        # pylint: disable=maybe-no-member
         if allow_index_downtime:
             logging.warning(
                 "Updating analyzer: %s. Index will be down until update is complete", self.name)

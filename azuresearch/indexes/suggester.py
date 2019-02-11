@@ -1,8 +1,7 @@
 """ Suggester
 """
-import json
-
 from azuresearch.base_api_call import BaseApiCall
+
 
 class Suggester(BaseApiCall):
     """ Suggester
@@ -26,12 +25,15 @@ class Suggester(BaseApiCall):
         """
         return_dict = {
             "name": self.name,
-            "sourceFields": [field for field in self.source_fields] if self.source_fields else None,
-            "searchMode": self.search_mode
+            "sourceFields":
+            [field for field in self.source_fields] if self.source_fields else None,
+            "searchMode":
+            self.search_mode
         }
 
         # add additional user generated params
         return_dict.update(self.params)
+
         # make all params camelCase (to be sent correctly to Azure Search
         return_dict = self.to_camel_case_dict(return_dict)
 
@@ -39,7 +41,7 @@ class Suggester(BaseApiCall):
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
 
-    def suggest(self, query, extra=None):
+    def suggest(self, query):
         """ suggest
         """
         query = {
@@ -47,6 +49,6 @@ class Suggester(BaseApiCall):
             "queryType": "full",
             "searchMode": "analyzingInfixMatching"
         }
-        self.results = self.endpoint.post(
+        results = self.endpoint.post(
             query, endpoint=self.name + "/docs/suggest")
-        return self.results
+        return results

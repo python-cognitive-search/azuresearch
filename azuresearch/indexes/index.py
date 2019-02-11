@@ -6,6 +6,8 @@ from azuresearch.base_api_call import BaseApiCall
 from azuresearch.document import Documents
 from .field import Field
 
+# pylint: disable=too-many-instance-attributes
+
 
 class Index(BaseApiCall):
     """ Index
@@ -13,6 +15,7 @@ class Index(BaseApiCall):
     results = None
     SERVICE_NAME = 'indexes'
 
+    # pylint: disable=too-many-arguments
     def __init__(self,
                  name,
                  fields=None,
@@ -73,12 +76,18 @@ class Index(BaseApiCall):
         return_dict = {
             "name": self.name,
             "fields": [field.to_dict() for field in self.fields],
-            "scoringProfiles": [sp.to_dict() for sp in self.scoring_profiles] if self.scoring_profiles else None,
+            "scoringProfiles":
+            [sp.to_dict()
+             for sp in self.scoring_profiles] if self.scoring_profiles else None,
             "suggesters": [sg.to_dict() for sg in self.suggesters] if self.suggesters else None,
             "analyzers": [an.to_dict() for an in self.analyzers] if self.analyzers else None,
             "tokenizers": [tk.to_dict() for tk in self.tokenizers] if self.tokenizers else None,
-            "tokenFilters": [tkf.to_dict() for tkf in self.token_filters] if self.token_filters else None,
-            "charFilters": [cf.to_dict() for cf in self.char_filters] if self.char_filters else None,
+            "tokenFilters":
+            [tkf.to_dict()
+             for tkf in self.token_filters] if self.token_filters else None,
+            "charFilters":
+            [cf.to_dict()
+             for cf in self.char_filters] if self.char_filters else None,
             "corsOptions": self.cors_options,
             "defaultScoringProfile": self.default_scoring_profile
         }
@@ -99,9 +108,9 @@ class Index(BaseApiCall):
         from azuresearch.analyzers.custom_analyzer import CustomAnalyzer
         from azuresearch.indexes import ScoringProfile
 
-        if type(data) is str:
+        if isinstance(data, str):
             data = json.loads(data)
-        if type(data) is not dict:
+        if not isinstance(data, dict):
             raise Exception("Failed to parse input as Dict")
 
         if 'suggesters' in data:
@@ -122,7 +131,6 @@ class Index(BaseApiCall):
         data = cls.to_snake_case_dict(data)
 
         return cls(**data)
-
 
     def verify(self):
         """ verify
@@ -147,8 +155,8 @@ class Index(BaseApiCall):
         response = self.endpoint.get(
             endpoint=self.name + "/stats", needs_admin=True)
         if response.status_code == 200:
-            self.recent_stats = response.json()
-            return self.recent_stats
+            recent_stats = response.json()
+            return recent_stats
         return response
 
     def count(self):
@@ -159,6 +167,6 @@ class Index(BaseApiCall):
             endpoint=self.name + "/docs/$count", needs_admin=True)
         if response.status_code == 200:
             response.encoding = "utf-8-sig"
-            self.recent_count = int(response.text)
-            return self.recent_count
+            recent_count = int(response.text)
+            return recent_count
         return response

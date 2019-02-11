@@ -23,6 +23,7 @@ class ScoringProfile(AzureSearchObject):
         self.functions = functions
 
     def __repr__(self):
+        # pylint: disable=maybe-no-member
         return "<{classname}: {name}>".format(
             classname=self.__name__, name=self.name
         )
@@ -34,20 +35,17 @@ class ScoringProfile(AzureSearchObject):
             "functions": [func.to_dict() for func in self.functions] if self.functions else None
         }
 
-        # add additional user generated params
         return_dict.update(self.params)
-        # make all params camelCase (to be sent correctly to Azure Search
         return_dict = self.to_camel_case_dict(return_dict)
 
-        # Remove None values
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
 
     @classmethod
     def load(cls, data):
-        if type(data) is str:
+        if isinstance(data, str):
             data = json.loads(data)
-        if type(data) is not dict:
+        if not isinstance(data, dict):
             raise Exception("Failed to parse input as Dict")
         if 'text' in data:
             data['text'] = ScoringProfileText.load(data['text'])
@@ -82,18 +80,19 @@ class ScoringProfileText(AzureSearchObject):
         # make all params camelCase (to be sent correctly to Azure Search
         return_dict = self.to_camel_case_dict(return_dict)
 
-        # Remove None values
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
 
     @classmethod
     def load(cls, data):
-        if type(data) is str:
+        if isinstance(data, str):
             data = json.loads(data)
-        if type(data) is not dict:
+        if not isinstance(data, dict):
             raise Exception("Failed to parse input as Dict")
         data = cls.to_snake_case_dict(data)
         return cls(**data)
+
+# pylint: disable=too-many-instance-attributes
 
 
 class ScoringProfileFunction(AzureSearchObject):
@@ -103,6 +102,8 @@ class ScoringProfileFunction(AzureSearchObject):
     https://docs.microsoft.com/en-us/rest/api/
     searchservice/add-scoring-profiles-to-a-search-index#bkmk_indexref'''
 
+    # pylint: disable=too-many-arguments
+    # pylint: disable=redefined-builtin
     def __init__(self,
                  type,
                  field_name=None,
@@ -134,32 +135,29 @@ class ScoringProfileFunction(AzureSearchObject):
             "magnitude": self.magnitude,
             "freshness": self.freshness,
             "distance": self.distance,
-            "tag": self.tag,
+            "tag": self.tag
         }
-        # add additional user generated params
         return_dict.update(self.params)
-        # make all params camelCase (to be sent correctly to Azure Search
         return_dict = self.to_camel_case_dict(return_dict)
 
-        # Remove None values
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
 
     def _validate_interpolation(self):
-        if self.interpolation and self.interpolation not in interpolations:
+        if self.interpolation and self.interpolation not in INTERPOLATIONS:
             warnings.warn(
-                "{interpolation} not in list of supported interpolations: {interpolations}".format(
-                    interpolation=self.interpolation, interpolations=interpolations))
+                "{interpolation} not in list of supported INTERPOLATIONS: {INTERPOLATIONS}".format(
+                    interpolation=self.interpolation, INTERPOLATIONS=INTERPOLATIONS))
 
 
-function_types = {
-    "magnitude",
-    "freshness",
-    "distance",
-    "tag"
-}
+# function_types = {
+#     "magnitude",
+#     "freshness",
+#     "distance",
+#     "tag"
+# }
 
-interpolations = {
+INTERPOLATIONS = {
     "constant",
     "linear",
     "quadratic",
