@@ -3,7 +3,6 @@
 import json
 
 from azuresearch.azure_search_object import AzureSearchObject
-from azuresearch.field_mapping import FieldMapping
 
 
 class Skill(AzureSearchObject):
@@ -35,6 +34,8 @@ class Skill(AzureSearchObject):
         if "outputs" not in kwargs:
             raise Exception("outputs must be provided")
         outputs = kwargs['outputs']
+
+        # pylint: disable=fixme
         # TODO check all outputs type
         if not isinstance(outputs[0], SkillOutput):
             raise TypeError("Outputs should be of type SkillOutput")
@@ -49,12 +50,15 @@ class Skill(AzureSearchObject):
         self.output_field_mapping = kwargs.get("output_field_mapping")
 
         self.params = {k: v for (k, v) in kwargs.items() if
-                       k not in ['skill_type', '@odata.type', 'inputs', 'outputs', 'context', 'output_field_mapping']}
+                       k not in ['skill_type', '@odata.type',
+                                 'inputs', 'outputs', 'context',
+                                 'output_field_mapping']}
 
     def to_dict(self):
         """ to_dict
         """
 
+        # pylint: disable=fixme
         # todo: add check that object is valid, now that the context, input & output are not part
         # of the init method
         return_dict = {
@@ -127,9 +131,9 @@ class Skill(AzureSearchObject):
         """ load
         """
         if data:
-            if type(data) is str:
+            if isinstance(data, str):
                 data = json.loads(data)
-            if type(data) is not dict:
+            if not isinstance(data, dict):
                 raise Exception("Failed to load JSON file with skill data")
             if "@odata.type" not in data:
                 raise Exception("Please provide the skill type (@odata.type)")
@@ -178,10 +182,13 @@ class SkillInput(AzureSearchObject):
 class SkillOutput(AzureSearchObject):
     """
     Defines the output of a skill
-    :param returns_multiple_results: if true means that there are multiple results under the result name
+    :param returns_multiple_results: if true means
+                                     that there are multiple results
+                                     under the result name
     """
 
-    def __init__(self, name, target_name, returns_multiple_results=False, **kwargs):
+    def __init__(self, name, target_name,
+                 returns_multiple_results=False, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.target_name = target_name

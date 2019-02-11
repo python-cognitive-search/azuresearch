@@ -8,6 +8,7 @@ from .abstract_analyzer import AbstractAnalyzer
 class CustomAnalyzer(AbstractAnalyzer):
     """ CustomAnalyzer
     """
+    # pylint: disable=too-many-arguments
 
     def __init__(self,
                  name,
@@ -17,7 +18,8 @@ class CustomAnalyzer(AbstractAnalyzer):
                  tokenizer=None,
                  token_filters=None,
                  **kwargs):
-        super().__init__(index_name=index_name, name=name, analyzer_type=analyzer_type, **kwargs)
+        super().__init__(index_name=index_name, name=name,
+                         analyzer_type=analyzer_type, **kwargs)
 
         self.tokenizer = tokenizer
         self.char_filters = char_filters
@@ -42,13 +44,14 @@ class CustomAnalyzer(AbstractAnalyzer):
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
 
+    # pylint: disable=arguments-differ
     @classmethod
     def load(cls, data, **kwargs):
         """ load
         """
-        if type(data) is str:
+        if isinstance(data, str):
             data = json.loads(data)
-        if type(data) is not dict:
+        if not isinstance(data, dict):
             raise Exception("Failed to parse input as Dict")
         if kwargs:
             data.update(kwargs)

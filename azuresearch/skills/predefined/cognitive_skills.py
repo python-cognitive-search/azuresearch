@@ -417,6 +417,7 @@ class ImageAnalysisSkill(Skill):
         if outputs is None:
             outputs = self.get_default_outputs(visual_features)
 
+        # pylint: disable=fixme
         # Todo
         #self.output_field_mapping = []
         # if fields_mapping is not None:

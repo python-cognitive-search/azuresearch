@@ -3,8 +3,6 @@
 import json
 
 from azuresearch.base_api_call import BaseApiCall
-from azuresearch.service import Endpoint
-
 
 
 class DataSource(BaseApiCall):
@@ -18,9 +16,11 @@ class DataSource(BaseApiCall):
     """
     SERVICE_NAME = "datasources"
 
+    # pylint: disable=too-many-arguments
     def __init__(self, name, connection_string, container_name,
-                 datasource_type='azureblob', description=None,**kwargs):
-        super(DataSource, self).__init__(service_name=DataSource.SERVICE_NAME,**kwargs)
+                 datasource_type='azureblob', description=None, **kwargs):
+        super(DataSource, self).__init__(
+            service_name=DataSource.SERVICE_NAME, **kwargs)
         self.name = name
         self.connection_string = connection_string
         self.container_name = container_name
@@ -48,16 +48,14 @@ class DataSource(BaseApiCall):
     def load(cls, data):
         """ load
         """
-        if isinstance(data, str):
-            data = json.loads(data)
         if not isinstance(data, dict):
             raise Exception("Failed to parse input as Dict")
+        if isinstance(data, str):
+            data = json.loads(data)
 
-
-        data['connection_string'] = data.get("credentials").get("connectionString")
+        data['connection_string'] = data.get(
+            "credentials").get("connectionString")
 
         data['container_name'] = data.get("container").get("name")
         data = cls.to_snake_case_dict(data)
         return cls(**data)
-
-

@@ -1,6 +1,5 @@
 """ FieldMapping
 """
-import json
 
 from azuresearch.azure_search_object import AzureSearchObject
 
@@ -9,7 +8,7 @@ class FieldMapping(AzureSearchObject):
     """ FieldMapping
     """
 
-    def __init__(self, source_field_name, target_field_name=None, mapping_function=None,**kwargs):
+    def __init__(self, source_field_name, target_field_name=None, mapping_function=None, **kwargs):
         """
         :param source_field_name: which represents a field in your data source.
                This property is required.
@@ -29,8 +28,8 @@ class FieldMapping(AzureSearchObject):
         """ to_dict
         """
         return_dict = {"source_field_name": self.source_field_name,
-               "target_field_name": self.target_field_name,
-               "mapping_function": self.mapping_function}
+                       "target_field_name": self.target_field_name,
+                       "mapping_function": self.mapping_function}
 
         # add additional user generated params
         return_dict.update(self.params)

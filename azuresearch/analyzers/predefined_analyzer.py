@@ -10,14 +10,15 @@ class PredefinedAnalyzer(AbstractAnalyzer):
     __name__ = 'PredefinedAnalyzer'
     endpoint = Endpoint("indexes")
 
-    def __init__(self, index_name, name, type, options=None, **kwargs):
+    def __init__(self, index_name, name, analyzer_type, options=None, **kwargs):
         super(PredefinedAnalyzer, self).__init__(
-            index_name, name, type, **kwargs)
+            index_name, name, analyzer_type, **kwargs)
         self.options = options
 
     def to_dict(self):
         """ to_dict
         """
+        # pylint: disable=no-member
         return_dict = {
             "name": self.name,
             "@odata.type": self.type,
@@ -35,7 +36,7 @@ class PredefinedAnalyzer(AbstractAnalyzer):
         return return_dict
 
 
-predefined_analyzers = {
+PREDEFINED_ANALYZERS = {
     "keyword": None,
     "pattern": "#Microsoft.Azure.Search.PatternAnalyzer",
     "simple": None,
@@ -45,13 +46,13 @@ predefined_analyzers = {
     "whitespace": None
 }
 
-char_filters = {
+CHAR_FILTERS = {
     "html_strip", None,
     "mapping", "#Microsoft.Azure.Search.MappingCharFilter",
     "pattern_replace", "#Microsoft.Azure.Search.PatternReplaceCharFilter"
 }
 
-tokenizers = {
+TOKENIZERS = {
     "classic": "#Microsoft.Azure.Search.ClassicTokenizer",
     "edgeNGram": "#Microsoft.Azure.Search.EdgeNGramTokenizer",
     "keyword_v2": "#Microsoft.Azure.Search.KeywordTokenizerV2",
@@ -68,7 +69,7 @@ tokenizers = {
     "whitespace": None
 }
 
-token_filters = {
+TOKEN_FILTERS = {
     "arabic_normalization": None,
     "apostrophe": None,
     "asciifolding": "#Microsoft.Azure.Search.AsciiFoldingTokenFilter",

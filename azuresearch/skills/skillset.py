@@ -2,11 +2,8 @@
 """
 import json
 
-import requests
-
 from azuresearch.base_api_call import BaseApiCall
 from azuresearch.skills import Skill
-from azuresearch.field_mapping import FieldMapping
 
 
 class Skillset(BaseApiCall):
@@ -17,6 +14,7 @@ class Skillset(BaseApiCall):
     def __init__(self, skills, name=None, description=None, **kwargs):
         super().__init__(service_name=Skillset.SERVICE_NAME, **kwargs)
 
+        # pylint: disable=len-as-condition
         if skills is None or len(skills) == 0:
             raise Exception("A skillset must have at least one skill")
 
@@ -36,12 +34,9 @@ class Skillset(BaseApiCall):
             'description': self.description,
             'skills': [skill.to_dict() for skill in self.skills]
         }
-        # add additional user generated params
         return_dict.update(self.params)
-        # make all params camelCase (to be sent correctly to Azure Search
         return_dict = self.to_camel_case_dict(return_dict)
 
-        # Remove None values
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
 
@@ -49,9 +44,9 @@ class Skillset(BaseApiCall):
     def load(cls, data):
         """ load
         """
-        if type(data) is str:
+        if isinstance(data, str):
             data = json.loads(data)
-        if type(data) is not dict:
+        if not isinstance(data, dict):
             raise Exception("Failed to parse input as Dict")
         if 'skills' not in data:
             raise Exception("Skills not found")
@@ -66,6 +61,8 @@ class Skillset(BaseApiCall):
         return cls(name=data['name'], skills=data['skills'], description=data['description'])
 
     def get_output_field_mappings(self):
+        """ get_output_field_mappings
+        """
         ofm = []
         for skill in self.skills:
             ofm = ofm + skill.output_field_mapping

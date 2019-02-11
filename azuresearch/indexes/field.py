@@ -5,6 +5,8 @@ import json
 
 from azuresearch.azure_search_object import AzureSearchObject
 
+# pylint: disable=too-many-instance-attributes
+
 
 class Field(AzureSearchObject):
     """
@@ -35,9 +37,11 @@ class Field(AzureSearchObject):
     """
     python_type = None
 
+    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-locals
     def __init__(self,
                  name,
-                 type=None,
+                 field_type=None,
                  index_name=None,
                  searchable=True,
                  filterable=False,
@@ -64,8 +68,8 @@ class Field(AzureSearchObject):
         self.analyzer = analyzer
         self.synonym_maps = synonym_maps
 
-        if type is not None:
-            self._field_type = type
+        if field_type is not None:
+            self._field_type = field_type
 
         self._validate_type()
         self._validate_name()
@@ -88,9 +92,9 @@ class Field(AzureSearchObject):
     def _validate_type(self):
         """ _validate_type
         """
-        if self.field_type not in types.keys():
+        if self.field_type not in TYPES.keys():
             raise ValueError(
-                "Azure Search only supports these types: {types}".format(types=types.keys()))
+                "Azure Search only supports these types: {types}".format(types=TYPES.keys()))
 
     def _validate_name(self):
         """ _validate_name
@@ -125,16 +129,17 @@ class Field(AzureSearchObject):
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
 
+    # pylint: disable=arguments-differ
     @classmethod
     def load(cls, data, **kwargs):
         """ load
         """
         if data:
-            if type(data) is str:
+            if isinstance(data, str):
                 data = json.loads(data)
-            if type(data) is not dict:
+            if not isinstance(data, dict):
                 raise Exception("Failed to load JSON file with field data")
-            field_type = types[data.pop('type')]
+            field_type = TYPES[data.pop('type')]
 
             kwargs.update(data)
             kwargs = cls.to_snake_case_dict(kwargs)
@@ -147,7 +152,9 @@ class StringField(Field):
     """
     python_type = str
 
-    def __init__(self, name, searchable=True, key=False, *args, **kwargs):
+    # pylint: disable=keyword-arg-before-vararg
+    def __init__(self, name, searchable=True,
+                 key=False, *args, **kwargs):
         super().__init__(name, *args, **kwargs)
         self.key = key
         self.searchable = searchable
@@ -158,6 +165,7 @@ class CollectionField(Field):
     """
     _field_type = "Collection(Edm.String)"
 
+    # pylint: disable=keyword-arg-before-vararg
     def __init__(self, name, searchable=True, key=False, *args, **kwargs):
         kwargs['sortable'] = False  # Collections cannot be sortable
         super().__init__(name, "Collection(Edm.String)", *args, **kwargs)
@@ -198,13 +206,14 @@ class GeographyPointField(Field):
     """ GeographyPointField
     """
 
+    # pylint: disable=keyword-arg-before-vararg
     def __init__(self, name, facetable=False, *args, **kwargs):
         # Edm.GeographyPoint fields cannot be facetable
         kwargs['facetable'] = False
         super().__init__(name, *args, **kwargs)
 
 
-types = {
+TYPES = {
     "Edm.String": StringField,
     "Collection(Edm.String)": CollectionField,
     "Edm.Int32": Int32Field,
