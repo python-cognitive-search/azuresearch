@@ -59,12 +59,12 @@ def test_pipeline():
     # keyphrases_skill.add_source(language_detection_skill)
 
     # connect one skill to previous skills outputs:
-    keyphrases_skill.set_inputs(text=split_skill.splitted_text,
+    keyphrases_skill.set_inputs(text=split_skill.text_items,
                                 language_code=language_detection_skill.language_code)
 
     # map skills output to fields (aka FieldOutputMapping)
     keyphrases_skill.key_phrases.map_to(key_phrases_field)
-    ner_skill.organizations.map_to(organizations_field)
+    ner_skill.organization.map_to(organizations_field)
     language_detection_skill.language_code.map_to(language_code_field)
 
     skillset = Skillset(

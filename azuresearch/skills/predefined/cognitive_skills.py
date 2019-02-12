@@ -38,33 +38,41 @@ class KeyPhraseExtractionSkill(Skill):
             params.update(kwargs)
 
         # Define skill specific values
-        self.key_phrases = "keyPhrases"
+        self.key_phrases = SkillParameter(skill=self, name="keyPhrases",return_multiple=True)
 
         super().__init__(skill_type=predefined_skills['KeyPhraseExtractionSkill'], inputs=inputs,
-                         outputs=outputs, context=context, output_field_mapping=self.output_field_mapping, **params)
+                         outputs=outputs, context=context, **params)
+
+    def get_default_inputs(self):
+        return [SkillInput("text", "/document/pages/*")]
 
     def set_inputs(self, text=None, language_code=None):
 
-        if text is not None and not isinstance(text, SkillParameter):
-            raise Exception("text should be of type SkillParameter")
-        if language_code is not None and not isinstance(language_code, SkillParameter):
-            raise Exception("language_code should be of type SkillParameter")
+        if text is not None:
+            if isinstance(text, str):
+                self.remove_input_by_name("text")
+                self.inputs.append(SkillInput("text", text))
+            elif isinstance(text, SkillParameter):
+                self.remove_input_by_name("text")
+                self.inputs.append(SkillInput("text", "/document/{}/*".format(text.target)))
+            else:
+                raise Exception("text should be either a string representing the input name or a SkillParameter")
 
-        self.inputs.append(FieldMapping("text", text.name))
-        self.inputs.append(FieldMapping("language_code", language_code.name))
+        if language_code is not None:
+            if isinstance(language_code, str):
+                self.remove_input_by_name("languageCode")
+                self.inputs.append(SkillInput("languageCode", language_code))
+            elif isinstance(language_code, SkillParameter):
+                self.remove_input_by_name("languageCode")
+                self.inputs.append(SkillInput("languageCode", "/document/{}".format(language_code.target)))
+            else:
+                raise Exception(
+                    "language_code should be either a string representing the input name or a SkillParameter")
 
     def set_default_outputs(self):
         logging.debug("Using default outputs")
-        outputs = [SkillOutput("keyPhrases", "keyPhrases")]
-        return outputs
-
-    def get_default_inputs(self):
-        logging.debug("Using default inputs")
-
-        inputs = [SkillInput("text", "/document/pages/*"),
-                  SkillInput("languageCode", "/document/languageCode")
-                  ]
-        return inputs
+        outputs = [self.key_phrases.to_skill_output()]
+        self.outputs = outputs
 
 
 class LanguageDetectionSkill(Skill):
@@ -77,12 +85,9 @@ class LanguageDetectionSkill(Skill):
     """
 
     def __init__(self, inputs=None, outputs=None, context=None, fields_mapping=None, **kwargs):
-
-        self.output_field_mapping = []
-        self.language_code = SkillParameter("languageCode")
-        self.language_name = SkillParameter("languageName")
-        self.score = SkillParameter("score")
-
+        self.language_code = SkillParameter(self, "languageCode")
+        self.language_name = SkillParameter(self, "languageName")
+        self.score = SkillParameter(self, "score")
 
         # if fields_mapping is not None:
         #     for mtf in fields_mapping:
@@ -98,29 +103,27 @@ class LanguageDetectionSkill(Skill):
 
         super().__init__(skill_type=predefined_skills['LanguageDetectionSkill'],
                          inputs=inputs, outputs=outputs,
-                         context=context, output_field_mapping=self.output_field_mapping, **kwargs)
+                         context=context, **kwargs)
 
     def get_default_inputs(self):
-        inputs = [SkillInput(name="text", source="/document/content")]
-        return inputs
+        return [(SkillInput(name="text", source="/document/content"))]
 
-    def get_default_outputs(self):
-        outputs = [SkillOutput(name=self.SupportedTypes.LANGUAGE_CODE, target_name="languageCode"),
-                   SkillOutput(name=self.SupportedTypes.LANGUAGE_NAME,
-                               target_name="languageName"),
-                   SkillOutput(name=self.SupportedTypes.SCORE,
-                               target_name="score")
+    def set_inputs(self, text="text", source="/document/content"):
+        self.inputs.append(SkillInput(name=text, source=source))
+        self.inputs = list(set(self.inputs))  # remove duplicates
+
+    def set_default_outputs(self):
+        outputs = [SkillOutput(name=self.language_code.name, target_name="languageCode"),
+                   SkillOutput(name=self.language_name.name, target_name="languageName"),
+                   SkillOutput(name=self.score.name, target_name="score")
                    ]
-        return outputs
+        self.outputs = outputs
 
 
 class EntityRecognitionSkill(Skill):
     """
     The Entity Recognition skill extracts entities of different types from text.
     """
-
-    def set_inputs(self, **kwargs):
-        pass
 
     class SupportedTypes:
         PERSON = "person"
@@ -138,49 +141,24 @@ class EntityRecognitionSkill(Skill):
                  minimum_precision=None, include_typeless_entities=False,
                  fields_mapping=None, **kwargs):
 
-        self.output_field_mapping = []
-
         if categories is None:
             raise ValueError("No categories suppplied to the EntityRecognitionSkill")
 
         # Set up fields for each category (to be used for field mapping)
-        self.person = SkillParameter('persons')
-        self.location = SkillParameter('locations')
-        self.organization = SkillParameter('organizations')
-        self.quantity = SkillParameter('quantities')
-        self.datetime = SkillParameter('dateTimes')
-        self.url = SkillParameter('urls')
-        self.email = SkillParameter('emails')
-
-        # Another option: Create fields dynamically (less intuitive)
-        # for category in categories:
-        #    self.__dict__[category] = SkillParameter(category)
-
-
-
-        # if fields_mapping is not None:
-        #     for mtf in fields_mapping:
-        #         if mtf["name"] == self.SupportedTypes.PERSON:
-        #             self.output_field_mapping.append(FieldMapping(
-        #                 "/document/persons/*", mtf["field"].name))
-        #         if mtf["name"] == self.SupportedTypes.LOCATION:
-        #             self.output_field_mapping.append(FieldMapping(
-        #                 "/document/locations/*", mtf["field"].name))
-        #         if mtf["name"] == self.SupportedTypes.ORGANIZATION:
-        #             self.output_field_mapping.append(FieldMapping(
-        #                 "/document/organizations/*", mtf["field"].name))
-        #         if mtf["name"] == self.SupportedTypes.QUANITITY:
-        #             self.output_field_mapping.append(FieldMapping(
-        #                 "/document/quantities/*", mtf["field"].name))
-        #         if mtf["name"] == self.SupportedTypes.DATETIME:
-        #             self.output_field_mapping.append(FieldMapping(
-        #                 "/document/dateTimes/*", mtf["field"].name))
-        #         if mtf["name"] == self.SupportedTypes.URL:
-        #             self.output_field_mapping.append(FieldMapping(
-        #                 "/document/urls/*", mtf["field"].name))
-        #         if mtf["name"] == self.SupportedTypes.EMAIL:
-        #             self.output_field_mapping.append(FieldMapping(
-        #                 "/document/emails/*", mtf["field"].name))
+        if 'Person' in categories:
+            self.person = SkillParameter(self, 'persons')
+        if 'Location' in categories:
+            self.location = SkillParameter(self, 'locations')
+        if 'Organization' in categories:
+            self.organization = SkillParameter(self, 'organizations')
+        if 'Quantity' in categories:
+            self.quantity = SkillParameter(self, 'quantities')
+        if 'Datetime' in categories:
+            self.datetime = SkillParameter(self, 'dateTimes')
+        if 'URL' in categories:
+            self.url = SkillParameter(self, 'urls')
+        if 'Email' in categories:
+            self.email = SkillParameter(self, 'emails')
 
         params = {"defaultLanguageCode": default_language_code,
                   "minimumPrecision": minimum_precision,
@@ -191,31 +169,32 @@ class EntityRecognitionSkill(Skill):
             params.update(kwargs)
 
         super().__init__(skill_type=predefined_skills['EntityRecognitionSkill'],
-                         context=context, output_field_mapping=self.output_field_mapping, **params)
+                         context=context, **params)
 
-    def get_default_inputs(self, persons=None, locations=None, organizations=None, quantities=None, date_times=None,
-                           urls=None, emails=None):
-        inputs = [SkillInput(name="text", source="/document/content")]
+    def set_inputs(self, skill_parameter):
+        self.inputs.append(SkillInput(name='text', source=skill_parameter.name))
+
+    def get_default_inputs(self):
+        inputs = [SkillInput(name='text', source="/document/content")]
+
         return inputs
 
-    def set_default_outputs(self, **kwargs):
-        outputs = []
-        default_outputs = {
-            "Person": "persons",
-            "Location": "locations",
-            "Organization": "organizations",
-            "Quantity": "quantities",
-            "Datetime": "dateTimes",
-            "URL": "urls",
-            "Email": "emails"}
-
-        categories = kwargs.get("categories")
-
-        for category in categories:
-            so = SkillOutput(
-                name=default_outputs[category], target_name=default_outputs[category])
-        outputs.append(so)
-        self.outputs = outputs
+    def set_default_outputs(self):
+        self.outputs = []
+        if hasattr(self, 'person'):
+            self.outputs.append(self.person.to_skill_output())
+        if hasattr(self, 'location'):
+            self.outputs.append(self.location.to_skill_output())
+        if hasattr(self, 'organization'):
+            self.outputs.append(self.organization.to_skill_output())
+        if hasattr(self, 'quantity'):
+            self.outputs.append(self.quantity.to_skill_output())
+        if hasattr(self, 'datetime'):
+            self.outputs.append(self.datetime.to_skill_output())
+        if hasattr(self, 'url'):
+            self.outputs.append(self.url.to_skill_output())
+        if hasattr(self, 'email'):
+            self.outputs.append(self.email.to_skill_output())
 
 
 class MergeSkill(Skill):
@@ -250,8 +229,17 @@ class MergeSkill(Skill):
                     self.output_field_mapping.append(FieldMapping(
                         "/document/merged_text", mtf["field"].name))
 
-        super(MergeSkill, self).__init__(skill_type=predefined_skills['MergeSkill'], inputs=inputs, outputs=outputs,
-                                         context=context, output_field_mapping=self.output_field_mapping, **params)
+        super().__init__(skill_type=predefined_skills['MergeSkill'], inputs=inputs, outputs=outputs,
+                         context=context, output_field_mapping=self.output_field_mapping, **params)
+
+    def set_inputs(self, text="text", items_to_insert="itemsToInsert", offsets="offsets"):
+        self.inputs.extend([SkillInput("text", text),
+                            SkillInput("itemsToInsert", items_to_insert),
+                            SkillInput("offsets", offsets)])
+        self.inputs = list(set(self.inputs))
+
+    def set_default_outputs(self):
+        pass
 
     def get_default_inputs(self):
         inputs = [SkillInput("text", "/document/content"),
@@ -285,9 +273,6 @@ class SplitSkill(Skill):
     Japanese, and Korean.
     """
 
-    class SupportedTypes():
-        TEXT_ITEMS = "textItems"
-
     def __init__(self, inputs=None, outputs=None, context=None, text_split_mode='pages', maximum_page_length=None,
                  default_language_code='en', fields_mapping=None, **kwargs):
         params = {"textSplitMode": text_split_mode,
@@ -296,37 +281,51 @@ class SplitSkill(Skill):
         if kwargs:
             params.update(kwargs)
 
-        if inputs is None:
-            inputs = self.get_default_inputs()
+        self.text_items = SkillParameter(self, "textItems", "pages")
 
-        if outputs is None:
-            outputs = self.get_default_outputs()
-
-        self.output_field_mapping = []
-        if fields_mapping is not None:
-            for mtf in fields_mapping:
-                if mtf["name"] == self.SupportedTypes.TEXT_ITEMS:
-                    self.output_field_mapping.append(FieldMapping(
-                        "/document/pages/*", mtf["field"].name))
+        # if fields_mapping is not None:
+        #     for mtf in fields_mapping:
+        #         if mtf["name"] == self.SupportedTypes.TEXT_ITEMS:
+        #             self.output_field_mapping.append(FieldMapping(
+        #                 "/document/pages/*", mtf["field"].name))
 
         super().__init__(skill_type=predefined_skills['SplitSkill'],
-                         inputs=inputs,
-                         outputs=outputs,
                          context=context,
-                         output_field_mapping=self.output_field_mapping,
                          **params)
+
+    def set_inputs(self, text=None, language_code=None):
+        if text is not None:
+            if isinstance(text, str):
+                self.remove_input_by_name("text")
+                self.inputs.append(SkillInput("text", text))
+            elif isinstance(text, SkillParameter):
+                self.remove_input_by_name("text")
+                self.inputs.append(SkillInput("text", text.name))
+            else:
+                raise Exception("text should be either a string representing the input name or a SkillParameter")
+
+        if language_code is not None:
+            if isinstance(language_code, str):
+                self.remove_input_by_name("languageCode")
+                self.inputs.append(SkillInput("languageCode", language_code))
+            elif isinstance(language_code, SkillParameter):
+                self.remove_input_by_name("languageCode")
+                self.inputs.append(SkillInput("languageCode", language_code.name))
+            else:
+                raise Exception(
+                    "language_code should be either a string representing the input name or a SkillParameter")
 
     def get_default_inputs(self):
         logging.debug("Using default inputs")
 
         inputs = [SkillInput("text", "/document/content"),
-                  SkillInput("languageCode", "/document/languageCode")
                   ]
         return inputs
 
-    def get_default_outputs(self):
-        outputs = [SkillOutput(self.SupportedTypes.TEXT_ITEMS, "pages", True)]
-        return outputs
+    def set_default_outputs(self):
+        logging.debug("Using default outputs")
+        outputs = [self.text_items.to_skill_output()]
+        self.outputs = outputs
 
 
 class SentimentSkill(Skill):
@@ -405,7 +404,8 @@ class ImageAnalysisSkill(Skill):
     Faces - detects if faces are present. If present, generates coordinates, gender, and age.
     ImageType - detects if image is clipart or a line drawing.
     Color - determines the accent color, dominant color, and whether an image is black&white.
-    Adult - detects if the image is pornographic in nature (depicts nudity or a sex act). Sexually suggestive content
+    Adult - detects if the image is pornographic in nature (depicts nudity or a sex act). Sexually suggestive
+    content
     is also detected.
 
     Names of visual features are case-sensitive.
@@ -474,8 +474,10 @@ class OCRSkill(Skill):
     :param detectOrientation: Enables autodetection of image orientation.
             Valid values: true / false.
     :param defaultLanguageCode: Language code of the input text. If the language code is unspecified or null,
-    the language will be set to English. If the language is explicitly set to "unk", the language will be auto-detected.
-    :param textExtractionAlgorithm :	"printed" or "handwritten". The "handwritten" text recognition OCR algorithm
+    the language will be set to English. If the language is explicitly set to "unk", the language will be
+    auto-detected.
+    :param textExtractionAlgorithm :	"printed" or "handwritten". The "handwritten" text recognition OCR
+    algorithm
     is currently in preview and only supported in English.
     """
 
