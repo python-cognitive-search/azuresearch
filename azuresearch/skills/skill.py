@@ -1,8 +1,11 @@
 """ Skill
 """
 import json
+from abc import abstractmethod
 
 from azuresearch.azure_search_object import AzureSearchObject
+from azuresearch.field_mapping import FieldMapping
+from azuresearch.indexes import Field
 
 
 class Skill(AzureSearchObject):
@@ -22,24 +25,23 @@ class Skill(AzureSearchObject):
         """
         super().__init__(**kwargs)
 
-        # if "inputs" not in kwargs:
-        #    raise Exception("Inputs must be provided")
-        self.inputs = []
+        self.inputs = []  ## Start with empty list of inputs, unless explicitly stated. Inputs should be either
+        # defined in the constructor or using the set_inputs method
         if "inputs" in kwargs:
             inputs = kwargs['inputs']
-            if not isinstance(inputs[0], SkillInput):
-                raise TypeError("Inputs should be of type SkillInput")
+            for inp in inputs:
+                if not isinstance(inp, SkillInput):
+                    raise TypeError("Input should be of type SkillInput. Wrong input = {}".format(inp))
             self.inputs = inputs
 
         if "outputs" not in kwargs:
-            raise Exception("outputs must be provided")
-        outputs = kwargs['outputs']
-
-        # pylint: disable=fixme
-        # TODO check all outputs type
-        if not isinstance(outputs[0], SkillOutput):
-            raise TypeError("Outputs should be of type SkillOutput")
-        self.outputs = outputs
+            self.set_default_outputs(**kwargs)
+        else:
+            outputs = kwargs['outputs']
+            for outp in outputs:
+                if not isinstance(outp, SkillOutput):
+                    raise TypeError("Output should be of type SkillOutput. Wrong output = {}".format(outp))
+            self.outputs = outputs
 
         if "@odata.type" in kwargs:
             self.skill_type = kwargs.get("@odata.type")
@@ -53,6 +55,18 @@ class Skill(AzureSearchObject):
                        k not in ['skill_type', '@odata.type',
                                  'inputs', 'outputs', 'context',
                                  'output_field_mapping']}
+
+    @abstractmethod
+    def set_inputs(self, **kwargs):
+        """
+        Defines the inputs this skill needs from other skills and from the document cracking phase
+        :param kwargs: specific inputs required by this skill, defined by their names
+        """
+        pass
+
+    @abstractmethod
+    def set_default_outputs(self, **kwargs):
+        pass
 
     def to_dict(self):
         """ to_dict
@@ -88,25 +102,25 @@ class Skill(AzureSearchObject):
     #        if include_list:
     #            if output.name not in include_list:
     #                should_add = False
-#
+    #
     #        if should_add:
     #            found = False
     #            multiple_suffix = ""
     #            if output.returns_multiple_results:
     #                multiple_suffix = "/*"
     #            src = "/document/" + output.target_name + multiple_suffix
-#
+    #
     #            for inpt in self.inputs:
     #                if inpt.name == output.name:
     #                    found = True
     #                    inpt.source = src
-#
+    #
     #            if not found:
     #                newInput = SkillInput(
     #                    output.name, src)
     #                self.inputs.append(newInput)
     #    #self.context = other.context
-#
+    #
     # def remove_source(self, skill=None, source_name=None):
     #    """ remove the
     #    """
@@ -114,13 +128,13 @@ class Skill(AzureSearchObject):
     #        raise Exception("please provide either a skill or a source name")
     #    if skill and source_name:
     #        raise Exception("please provide only a skill or a source name")
-#
+    #
     #    if skill:
     #        for output in skill.outputs:
     #            for input in self.inputs:
     #                if output.name == input.name:
     #                    self.inputs.remove(input)
-#
+    #
     #    if source_name:
     #        for input in self.inputs:
     #            if source_name == input.name:
@@ -145,7 +159,7 @@ class Skill(AzureSearchObject):
             data['outputs'] = [SkillOutput.load(so) for so in data['outputs']]
             data['inputs'] = [SkillInput.load(so) for so in data['inputs']]
 
-            #skill_type = data['@odata.type']
+            # skill_type = data['@odata.type']
             data = cls.to_snake_case_dict(data)
             return cls(**data)
         raise Exception("data is null")
@@ -209,3 +223,19 @@ class SkillOutput(AzureSearchObject):
         # Remove None values
         return_dict = self.remove_empty_values(return_dict)
         return return_dict
+
+
+class SkillParameter(object):
+    """
+    Holds the field to which this parameter maps to (e.g. in NER, organizations -> organization_field of type Field)
+    """
+
+    def __init__(self, name):
+        self.name = name
+        self.output_field_mapping = None
+
+    @abstractmethod
+    def map_to(self, field):
+        if not isinstance(field, Field):
+            raise Exception("field should be of type Field")
+        self.output_field_mapping = FieldMapping(self.name, field.name)
