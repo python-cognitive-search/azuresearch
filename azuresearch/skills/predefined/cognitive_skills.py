@@ -330,12 +330,15 @@ class SentimentSkill(Skill):
     Providing a language code is useful to avoid cutting a word in half for non-space languages such as Chinese,
     Japanese, and Korean.
     """
-    class SupportedTypes():
+    class SupportedTypes:
         SCORE = "score"
 
     def __init__(self, inputs=None, outputs=None, context=None, text_split_mode='pages', maximum_page_length=None,
                  default_language_code='en', fields_mapping=None, **kwargs):
-        params = {"defaultLanguageCode": default_language_code}
+        params = {"textSplitMode": text_split_mode,
+                  "maximumPageLength": maximum_page_length,
+                  "defaultLanguageCode": default_language_code}
+
         if kwargs:
             params.update(kwargs)
 
@@ -353,7 +356,8 @@ class SentimentSkill(Skill):
                         "/document/mysentiment", mtf["field"].name))
 
         super().__init__(
-            predefined_skills['SentimentSkill'], inputs, outputs, context, output_field_mapping=self.output_field_mapping, **params)
+            predefined_skills['SentimentSkill'], inputs, outputs, context,
+            output_field_mapping=self.output_field_mapping, **params)
 
     def get_default_inputs(self):
         logging.debug("Using default inputs")

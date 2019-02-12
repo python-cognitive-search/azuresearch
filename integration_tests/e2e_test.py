@@ -31,14 +31,14 @@ def test_pipeline():
     datasource.create()
 
     # define fields and index
-    field1 = StringField("id", key=True, sortable=True)
-    field2 = StringField("content")
-    field3 = StringField("languageCode", sortable=True)
-    field4 = CollectionField("keyPhrases")
-    field5 = CollectionField("organizations")
-    field6 = StringField("translatedText")
+    id_field = StringField("id", key=True, sortable=True)
+    content_field = StringField("content")
+    language_code_field = StringField("languageCode", sortable=True)
+    key_phrases_field = CollectionField("keyPhrases")
+    organizations_field = CollectionField("organizations")
+    translated_text_field = StringField("translatedText")
 
-    fields = [field1, field2, field3, field4, field5, field6]
+    fields = [id_field, content_field, language_code_field, key_phrases_field, organizations_field, translated_text_field]
 
     index = Index("my-index", fields=fields)
     index.delete_if_exists()
@@ -47,12 +47,14 @@ def test_pipeline():
     # Define skills, Including the matching field mapping
     ner_skill = EntityRecognitionSkill(
         categories=["Organization"],
-        fields_mapping=[{"name": EntityRecognitionSkill.SupportedTypes.ORGANIZATION, "field": field5}])
+        fields_mapping=[{"name": EntityRecognitionSkill.SupportedTypes.ORGANIZATION, "field": organizations_field}])
+
+
     language_detection_skill = LanguageDetectionSkill(
-        fields_mapping=[{"name": LanguageDetectionSkill.SupportedTypes.LANGUAGE_CODE, "field": field3}])
+        fields_mapping=[{"name": LanguageDetectionSkill.SupportedTypes.LANGUAGE_CODE, "field": language_code_field}])
     split_skill = SplitSkill(maximum_page_length=4000)
     keyphrases_skill = KeyPhraseExtractionSkill(
-        fields_mapping=[{"name": KeyPhraseExtractionSkill.SupportedTypes.TEXT, "field": field4}])
+        fields_mapping=[{"name": KeyPhraseExtractionSkill.SupportedTypes.TEXT, "field": key_phrases_field}])
 
     # dependency list:
     # 1: ner_skill
