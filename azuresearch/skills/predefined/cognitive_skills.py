@@ -38,7 +38,7 @@ class KeyPhraseExtractionSkill(Skill):
             params.update(kwargs)
 
         # Define skill specific values
-        self.key_phrases = SkillParameter(skill=self, name="keyPhrases",return_multiple=True)
+        self.key_phrases = SkillParameter(skill=self, name="keyPhrases", return_multiple=True)
 
         super().__init__(skill_type=predefined_skills['KeyPhraseExtractionSkill'], inputs=inputs,
                          outputs=outputs, context=context, **params)
@@ -216,30 +216,37 @@ class MergeSkill(Skill):
         if kwargs:
             params.update(kwargs)
 
-        if inputs is None:
-            inputs = self.get_default_inputs()
-
-        if outputs is None:
-            outputs = self.get_default_outputs()
-
-        self.output_field_mapping = []
-        if fields_mapping is not None:
-            for mtf in fields_mapping:
-                if mtf["name"] == self.SupportedTypes.MERGED_TEXT:
-                    self.output_field_mapping.append(FieldMapping(
-                        "/document/merged_text", mtf["field"].name))
+        self.merged_text = SkillParameter(self, "mergedText","merged_text")
 
         super().__init__(skill_type=predefined_skills['MergeSkill'], inputs=inputs, outputs=outputs,
-                         context=context, output_field_mapping=self.output_field_mapping, **params)
+                         context=context, **params)
 
-    def set_inputs(self, text="text", items_to_insert="itemsToInsert", offsets="offsets"):
-        self.inputs.extend([SkillInput("text", text),
-                            SkillInput("itemsToInsert", items_to_insert),
-                            SkillInput("offsets", offsets)])
-        self.inputs = list(set(self.inputs))
+    def set_inputs(self, text=None, items_to_insert=None, offsets=None):
+
+        if text is not None:
+            if isinstance(text, str):
+                self.remove_input_by_name("text")
+                self.inputs.append(SkillInput("text", text))
+            elif isinstance(text, SkillParameter):
+                self.remove_input_by_name("text")
+                self.inputs.append(SkillInput("text", "{context}/{target}/*".format(context = self.context,target=text.target)))
+            else:
+                raise Exception("text should be either a string representing the input name or a SkillParameter")
+
+        if language_code is not None:
+            if isinstance(language_code, str):
+                self.remove_input_by_name("languageCode")
+                self.inputs.append(SkillInput("languageCode", language_code))
+            elif isinstance(language_code, SkillParameter):
+                self.remove_input_by_name("languageCode")
+                self.inputs.append(SkillInput("languageCode", "/document/{}".format(language_code.target)))
+            else:
+                raise Exception(
+                    "language_code should be either a string representing the input name or a SkillParameter")
+
 
     def set_default_outputs(self):
-        pass
+        self.outputs = [SkillOutput("mergedText", "mergedText")]
 
     def get_default_inputs(self):
         inputs = [SkillInput("text", "/document/content"),
