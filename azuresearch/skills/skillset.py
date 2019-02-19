@@ -18,12 +18,19 @@ class Skillset(BaseApiCall):
         if skills is None or len(skills) == 0:
             raise Exception("A skillset must have at least one skill")
 
-        if not isinstance(skills[0], Skill):
-            raise Exception("Skills must be of type 'Skill'")
+        for skill in skills:
+            if not isinstance(skill, Skill):
+                raise Exception("Skills must be of type 'Skill'")
+            if len(skill.inputs) == 0:
+                raise ValueError("Skill of type {} has no inputs defined".format(skill.skill_type))
+            if len(skill.outputs) == 0:
+                raise ValueError("Skill of type {} has no outputs defined".format(skill.skill_type))
 
         self.name = name
         self.skills = skills
         self.description = description
+
+
 
     def to_dict(self):
         """ to_dict

@@ -4,7 +4,6 @@ import time
 import pytest
 
 from azuresearch.data_source import DataSource
-from azuresearch.field_mapping import FieldMapping
 from azuresearch.indexers import IndexerParameters
 from azuresearch.indexers.indexer import Indexer
 from azuresearch.indexes import StringField, CollectionField, Index
@@ -31,28 +30,25 @@ def test_pipeline():
     datasource.create()
 
     # define fields and index
-    field1 = StringField("id", key=True, sortable=True)
-    field2 = StringField("content")
-    field3 = StringField("languageCode", sortable=True)
-    field4 = CollectionField("keyPhrases")
-    field5 = CollectionField("organizations")
-    field6 = StringField("translatedText")
+    id_field = StringField("id", key=True, sortable=True)
+    content_field = StringField("content")
+    language_code_field = StringField("languageCode", sortable=True)
+    key_phrases_field = CollectionField("keyPhrases")
+    organizations_field = CollectionField("organizations")
+    translated_text_field = StringField("translatedText")
 
-    fields = [field1, field2, field3, field4, field5, field6]
+    fields = [id_field, content_field, language_code_field, key_phrases_field, organizations_field,
+              translated_text_field]
 
     index = Index("my-index", fields=fields)
     index.delete_if_exists()
     index.create()
 
     # Define skills, Including the matching field mapping
-    ner_skill = EntityRecognitionSkill(
-        categories=["Organization"],
-        fields_mapping=[{"name": EntityRecognitionSkill.SupportedTypes.ORGANIZATION, "field": field5}])
-    language_detection_skill = LanguageDetectionSkill(
-        fields_mapping=[{"name": LanguageDetectionSkill.SupportedTypes.LANGUAGE_CODE, "field": field3}])
+    ner_skill = EntityRecognitionSkill(categories=["Organization"])
+    language_detection_skill = LanguageDetectionSkill()
     split_skill = SplitSkill(maximum_page_length=4000)
-    keyphrases_skill = KeyPhraseExtractionSkill(
-        fields_mapping=[{"name": KeyPhraseExtractionSkill.SupportedTypes.TEXT, "field": field4}])
+    keyphrases_skill = KeyPhraseExtractionSkill()
 
     # dependency list:
     # 1: ner_skill
@@ -61,6 +57,15 @@ def test_pipeline():
     # 2: splitskill , language code-> keyphrases_skill
     # keyphrases_skill.add_source(split_skill)
     # keyphrases_skill.add_source(language_detection_skill)
+
+    # connect one skill to previous skills outputs:
+    keyphrases_skill.set_inputs(text=split_skill.text_items,
+                                language_code=language_detection_skill.language_code)
+
+    # map skills output to fields (aka FieldOutputMapping)
+    keyphrases_skill.key_phrases.map_to(key_phrases_field)
+    ner_skill.organization.map_to(organizations_field)
+    language_detection_skill.language_code.map_to(language_code_field)
 
     skillset = Skillset(
         skills=[
