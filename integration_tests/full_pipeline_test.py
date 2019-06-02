@@ -25,7 +25,7 @@ def setup_indexes():
     indices = Index.list()
     if len(indices) > 0:
         for index in indices:
-            Index(name=index.name).delete()
+            Index(name=index.name, fields=[]).delete()
         index_list = Index.list()
         assert len(index_list) == 0
 
@@ -34,7 +34,7 @@ def teardown_indexes():
     indices = Index.list()
     if len(indices) > 0:
         for index in indices:
-            Index(name=index.name).delete()
+            Index(name=index.name, fields=[]).delete()
         index_list = Index.list()
         assert len(index_list) == 0
 

@@ -36,11 +36,10 @@ class Skillset(BaseApiCall):
             'name': self.name,
             'description': self.description,
             'skills': [skill.to_dict() for skill in self.skills],
-            "cognitive_services": {
-                            "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
-                            "description": "mycogsvcs",
-                            "key": self.cognitive_services_key
-                        }
+            "cognitive_services": {"@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+                                   "description": "mycogsvcs",
+                                   "key": self.cognitive_services_key
+                                   }
         }
         return_dict.update(self.params)
         return_dict = self.to_camel_case_dict(return_dict)
@@ -58,8 +57,9 @@ class Skillset(BaseApiCall):
             raise Exception("Failed to parse input as Dict")
         if 'skills' not in data:
             raise Exception("Skills not found")
-        else:
-            data['skills'] = [Skill.load(sk) for sk in data['skills']]
+
+        data['skills'] = [Skill.load(sk) for sk in data['skills']]
+
         if 'name' not in data:
             data['name'] = None
 
@@ -71,7 +71,8 @@ class Skillset(BaseApiCall):
         else:
             cognitive_services_key = None
 
-        return cls(name=data['name'], skills=data['skills'], description=data['description'],
+        return cls(name=data['name'], skills=data['skills'],
+                   description=data['description'],
                    cognitive_services_key=cognitive_services_key)
 
     def get_output_field_mappings(self):

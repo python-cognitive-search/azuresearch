@@ -4,31 +4,35 @@ import json
 
 import requests
 
-from azuresearch.azure_search_object import AzureSearchObject
 from azuresearch.base_api_call import BaseApiCall
-from azuresearch.indexers import IndexerSchedule
-from azuresearch.indexers.indexer_parameters import IndexerParameters
+from azuresearch.indexers import IndexerSchedule, IndexerParameters
 from azuresearch.field_mapping import FieldMapping
 
 
 class Indexer(BaseApiCall):
-    """ Indexer
-    """
-
     SERVICE_NAME = "indexers"
 
-    def __init__(
-        self,
-        name,
-        data_source_name,
-        target_index_name,
-        skillset_name,
-        output_field_mappings=None,
-        schedule=None,
-        disabled=False,
-        parameters=IndexerParameters(),
-        **params
-    ):
+    def __init__(self, name,
+                 data_source_name,
+                 target_index_name,
+                 skillset_name,
+                 output_field_mappings=None,
+                 schedule=None,
+                 disabled=False,
+                 parameters=IndexerParameters(),
+                 **params):
+        """
+
+        :param name:
+        :param data_source_name:
+        :param target_index_name:
+        :param skillset_name:
+        :param output_field_mappings:
+        :param schedule:
+        :param disabled:
+        :param parameters:
+        :param params:
+        """
         super().__init__(service_name=Indexer.SERVICE_NAME, **params)
         self.output_field_mappings = output_field_mappings
         self.skillset_name = skillset_name
@@ -76,10 +80,11 @@ class Indexer(BaseApiCall):
             "dataSourceName": self.data_source_name,
             "targetIndexName": self.target_index_name,
             "skillsetName": self.skillset_name,
-            "fieldMappings": [fm.to_dict() for fm in self.field_mappings]
-            if self.field_mappings
+            "fieldMappings": [fm.to_dict() for fm in
+                              self.field_mappings] if self.field_mappings
             else None,
-            "outputFieldMappings": [fm.to_dict() for fm in self.output_field_mappings]
+            "outputFieldMappings": [fm.to_dict() for fm in
+                                    self.output_field_mappings]
             if self.output_field_mappings
             else None,
             "schedule": self.schedule.to_dict() if self.schedule else None,
@@ -98,9 +103,9 @@ class Indexer(BaseApiCall):
 
     @classmethod
     def load(cls, data):
-        if type(data) is str:
+        if isinstance(data) is str:
             data = json.loads(data)
-        if type(data) is not dict:
+        if isinstance(data) is not dict:
             raise Exception("Failed to parse input as Dict")
 
         if "parameters" in data:

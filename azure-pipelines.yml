@@ -16,7 +16,7 @@ jobs:
   steps:
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: '3.6'
+      versionSpec: '3.7'
       architecture: 'x64'
 
   - script: |
@@ -30,7 +30,7 @@ jobs:
       pylint azuresearch/indexes/*.py
       pylint azuresearch/skills/*.py
     displayName: 'pylint'
-    continueOnError: false
+    continueOnError: true
 
   - script: |
       pip install pytest

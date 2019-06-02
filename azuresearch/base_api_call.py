@@ -50,9 +50,7 @@ class BaseApiCall(AzureSearchObject):
             raise Exception(
                 "Error posting {service_name}. result: {result}"
                 .format(service_name=self.service_name, result=json.load(result.content)))
-        else:
-            logging.debug(
-                "Successfully created service %s", self.service_name)
+        logging.debug("Successfully created service %s", self.service_name)
         return result
 
     def get(self):

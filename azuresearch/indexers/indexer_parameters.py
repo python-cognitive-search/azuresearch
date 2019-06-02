@@ -7,6 +7,13 @@ class IndexerParameters(AzureSearchObject):
                  max_failed_items_per_batch=-1,
                  configuration=None,
                  **kwargs):
+        """
+
+        :param max_failed_items:
+        :param max_failed_items_per_batch:
+        :param configuration:
+        :param kwargs:
+        """
         if not configuration:
             configuration = self.default_indexer_configuration()
 

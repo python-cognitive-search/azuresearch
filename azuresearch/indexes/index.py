@@ -18,7 +18,7 @@ class Index(BaseApiCall):
     # pylint: disable=too-many-arguments
     def __init__(self,
                  name,
-                 fields=[],
+                 fields,
                  suggesters=None,
                  analyzers=None,
                  char_filters=None,
