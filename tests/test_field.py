@@ -47,7 +47,7 @@ def test_string_field_creation_dict_correct():
     assert field_dict['name'] == "test_field"
     assert field_dict['type'] == "Edm.String"
     assert field_dict['searchable'] == True
-    assert field_dict['filterable'] == False
+    assert field_dict['filterable'] == True
     assert field_dict['sortable'] == False
     assert field_dict['facetable'] == False
     assert field_dict['key'] == False
@@ -61,7 +61,7 @@ def test_int32_field_creation_dict_correct():
     assert field_dict['name'] == "test_field"
     assert field_dict['type'] == "Edm.Int32"
     assert field_dict['searchable'] == True
-    assert field_dict['filterable'] == False
+    assert field_dict['filterable'] == True
     assert field_dict['sortable'] == False
     assert field_dict['facetable'] == False
     assert field_dict['key'] == False

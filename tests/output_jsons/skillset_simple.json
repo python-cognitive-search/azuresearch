@@ -18,5 +18,10 @@
         }
       ]
     }
-  ]
+  ],
+    "cognitiveServices": {
+    	"@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+    	"description": "mycogsvcs",
+    	"key": "KEY"
+    }
 }

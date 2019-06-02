@@ -2,7 +2,7 @@
  "name": "hotels",  
  "fields": [
   {"name": "hotelId", "type": "Edm.String", "key": true, "searchable": false},
-  {"name": "baseRate", "type": "Edm.Double"},
+  {"name": "baseRate", "type": "Edm.Double", "searchable": false},
   {"name": "description", "type": "Edm.String", "filterable": false, "sortable": false, "facetable": false},
   {"name": "description_fr", "type": "Edm.String", "filterable": false, "sortable": false, "facetable": false, "analyzer": "fr.lucene"},
   {"name": "hotelName", "type": "Edm.String"},

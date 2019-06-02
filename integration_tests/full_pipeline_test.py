@@ -22,17 +22,21 @@ def test_load_index_from_file():
 
 def setup_indexes():
     "Remove any indexes in the engine"
-    for index in Index.list().json()['value']:
-        Index(name=index['name']).delete()
-    index_list = Index.list().json()
-    assert len(index_list['value']) == 0
+    indices = Index.list()
+    if len(indices) > 0:
+        for index in indices:
+            Index(name=index.name, fields=[]).delete()
+        index_list = Index.list()
+        assert len(index_list) == 0
 
 
 def teardown_indexes():
-    for index in Index.list().json()['value']:
-        Index(name=index['name']).delete()
-    index_list = Index.list().json()
-    assert len(index_list['value']) == 0
+    indices = Index.list()
+    if len(indices) > 0:
+        for index in indices:
+            Index(name=index.name, fields=[]).delete()
+        index_list = Index.list()
+        assert len(index_list) == 0
 
 
 @pytest.mark.integration
@@ -44,8 +48,8 @@ class IndexCreate(unittest.TestCase):
         teardown_indexes()
 
     def test_index_create(self):
-        index_list = Index.list().json()
-        assert len(index_list['value']) == 0
+        index_list = Index.list()
+        assert len(index_list) == 0
 
         index = Index.load(get_json_file("hotels.index.json"))
         # print("Update index in Azure -----------------")
@@ -54,9 +58,9 @@ class IndexCreate(unittest.TestCase):
         #  For a successful request, you should see status code "201 Created".
         assert result.status_code == 201  #
 
-        index_list = Index.list().json()
-        assert len(index_list['value']) == 1
-        assert index_list['value'][0]['name'] == "hotels"
+        index_list = Index.list()
+        assert len(index_list) == 1
+        assert index_list[0].name == "hotels"
 
 
 @pytest.mark.integration

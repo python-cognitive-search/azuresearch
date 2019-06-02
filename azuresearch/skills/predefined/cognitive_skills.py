@@ -28,11 +28,13 @@ class KeyPhraseExtractionSkill(Skill):
     See Full list of supported languages.
     :param max_key_phrase_count: The maximum number of key phrases to produce.
     """
+
     class SupportedTypes:
         TEXT = "text"
         LANGUAGE_CODE = "languageCode"
 
-    def __init__(self, inputs=None, outputs=None, context="/document/pages/*", default_language_code='en',
+    def __init__(self, inputs=None, outputs=None, context="/document/pages/*",
+                 default_language_code='en',
                  max_key_phrase_count=30, fields_mapping=None, **kwargs):
         if inputs is None:
             inputs = self.get_default_inputs()
@@ -55,8 +57,11 @@ class KeyPhraseExtractionSkill(Skill):
         if kwargs:
             params.update(kwargs)
 
-        super().__init__(skill_type=predefined_skills['KeyPhraseExtractionSkill'], inputs=inputs,
-                         outputs=outputs, context=context, output_field_mapping=self.output_field_mapping, **params)
+        super().__init__(
+            skill_type=predefined_skills['KeyPhraseExtractionSkill'],
+            inputs=inputs,
+            outputs=outputs, context=context,
+            output_field_mapping=self.output_field_mapping, **params)
 
     def get_default_inputs(self):
         logging.debug("Using default inputs")
@@ -86,7 +91,8 @@ class LanguageDetectionSkill(Skill):
         LANGUAGE_NAME = "languageName"
         SCORE = "score"
 
-    def __init__(self, inputs=None, outputs=None, context=None, fields_mapping=None, **kwargs):
+    def __init__(self, inputs=None, outputs=None, context=None,
+                 fields_mapping=None, **kwargs):
         if inputs is None:
             inputs = self.get_default_inputs()
 
@@ -108,14 +114,17 @@ class LanguageDetectionSkill(Skill):
 
         super().__init__(skill_type=predefined_skills['LanguageDetectionSkill'],
                          inputs=inputs, outputs=outputs,
-                         context=context, output_field_mapping=self.output_field_mapping, **kwargs)
+                         context=context,
+                         output_field_mapping=self.output_field_mapping,
+                         **kwargs)
 
     def get_default_inputs(self):
         inputs = [SkillInput(name="text", source="/document/content")]
         return inputs
 
     def get_default_outputs(self):
-        outputs = [SkillOutput(name=self.SupportedTypes.LANGUAGE_CODE, target_name="languageCode"),
+        outputs = [SkillOutput(name=self.SupportedTypes.LANGUAGE_CODE,
+                               target_name="languageCode"),
                    SkillOutput(name=self.SupportedTypes.LANGUAGE_NAME,
                                target_name="languageName"),
                    SkillOutput(name=self.SupportedTypes.SCORE,
@@ -128,6 +137,7 @@ class EntityRecognitionSkill(Skill):
     """
     The Entity Recognition skill extracts entities of different types from text.
     """
+
     class SupportedTypes:
         PERSON = "person"
         LOCATION = "location"
@@ -184,7 +194,9 @@ class EntityRecognitionSkill(Skill):
 
         super().__init__(skill_type=predefined_skills['EntityRecognitionSkill'],
                          inputs=inputs, outputs=outputs,
-                         context=context, output_field_mapping=self.output_field_mapping, **params)
+                         context=context,
+                         output_field_mapping=self.output_field_mapping,
+                         **params)
 
     def get_default_inputs(self):
         inputs = [SkillInput(name="text", source="/document/content")]
@@ -203,7 +215,8 @@ class EntityRecognitionSkill(Skill):
 
         for category in categories:
             so = SkillOutput(
-                name=default_outputs[category], target_name=default_outputs[category])
+                name=default_outputs[category],
+                target_name=default_outputs[category])
         outputs.append(so)
         return outputs
 
@@ -216,10 +229,13 @@ class MergeSkill(Skill):
     :param insert_post_tag: String to be included after every insertion.
     The default value is " ". To omit the space, set the value to "".
      """
+
     class SupportedTypes():
         MERGED_TEXT = "mergedText"
 
-    def __init__(self, inputs=None, outputs=None, context=None, insert_pre_tag=" ", insert_post_tag=" ", fields_mapping=None, **kwargs):
+    def __init__(self, inputs=None, outputs=None, context=None,
+                 insert_pre_tag=" ", insert_post_tag=" ", fields_mapping=None,
+                 **kwargs):
         params = {"insertPreTag": insert_pre_tag,
                   "insertPostTag": insert_post_tag}
         if kwargs:
@@ -238,14 +254,18 @@ class MergeSkill(Skill):
                     self.output_field_mapping.append(FieldMapping(
                         "/document/merged_text", mtf["field"].name))
 
-        super(MergeSkill, self).__init__(skill_type=predefined_skills['MergeSkill'], inputs=inputs, outputs=outputs,
-                                         context=context, output_field_mapping=self.output_field_mapping, **params)
+        super(MergeSkill, self).__init__(
+            skill_type=predefined_skills['MergeSkill'], inputs=inputs,
+            outputs=outputs,
+            context=context, output_field_mapping=self.output_field_mapping,
+            **params)
 
     def get_default_inputs(self):
         inputs = [SkillInput("text", "/document/content"),
                   SkillInput("itemsToInsert",
                              "/document/normalized_images/*/text"),
-                  SkillInput("offsets", "/document/normalized_images/*/contentOffset")]
+                  SkillInput("offsets",
+                             "/document/normalized_images/*/contentOffset")]
         return inputs
 
     def get_default_outputs(self):
@@ -272,10 +292,12 @@ class SplitSkill(Skill):
     Providing a language code is useful to avoid cutting a word in half for non-space languages such as Chinese,
     Japanese, and Korean.
     """
+
     class SupportedTypes():
         TEXT_ITEMS = "textItems"
 
-    def __init__(self, inputs=None, outputs=None, context=None, text_split_mode='pages', maximum_page_length=None,
+    def __init__(self, inputs=None, outputs=None, context=None,
+                 text_split_mode='pages', maximum_page_length=None,
                  default_language_code='en', fields_mapping=None, **kwargs):
         params = {"textSplitMode": text_split_mode,
                   "maximumPageLength": maximum_page_length,
@@ -330,10 +352,12 @@ class SentimentSkill(Skill):
     Providing a language code is useful to avoid cutting a word in half for non-space languages such as Chinese,
     Japanese, and Korean.
     """
+
     class SupportedTypes():
         SCORE = "score"
 
-    def __init__(self, inputs=None, outputs=None, context=None, text_split_mode='pages', maximum_page_length=None,
+    def __init__(self, inputs=None, outputs=None, context=None,
+                 text_split_mode='pages', maximum_page_length=None,
                  default_language_code='en', fields_mapping=None, **kwargs):
         params = {"defaultLanguageCode": default_language_code}
         if kwargs:
@@ -353,7 +377,8 @@ class SentimentSkill(Skill):
                         "/document/mysentiment", mtf["field"].name))
 
         super().__init__(
-            predefined_skills['SentimentSkill'], inputs, outputs, context, output_field_mapping=self.output_field_mapping, **params)
+            predefined_skills['SentimentSkill'], inputs, outputs, context,
+            output_field_mapping=self.output_field_mapping, **params)
 
     def get_default_inputs(self):
         logging.debug("Using default inputs")
@@ -399,7 +424,8 @@ class ImageAnalysisSkill(Skill):
     Landmarks - identifies landmarks if detected in the image.
     """
 
-    def __init__(self, inputs=None, outputs=None, context="/document/normalized_images/*",
+    def __init__(self, inputs=None, outputs=None,
+                 context="/document/normalized_images/*",
                  visual_features=["Tags", "Faces", "Categories",
                                   "Adult", "Description", "ImageType", "Color"],
                  details=['Celebrities', 'Landmarks'],
@@ -419,13 +445,14 @@ class ImageAnalysisSkill(Skill):
 
         # pylint: disable=fixme
         # Todo
-        #self.output_field_mapping = []
+        # self.output_field_mapping = []
         # if fields_mapping is not None:
         #    for mtf in fields_mapping:
         #        if mtf["name"] == self.SupportedTypes.:
 
         super().__init__(
-            predefined_skills['ImageAnalysisSkill'], inputs, outputs, context, output_field_mapping=self.output_field_mapping, **params)
+            predefined_skills['ImageAnalysisSkill'], inputs, outputs, context,
+            output_field_mapping=self.output_field_mapping, **params)
 
     def get_default_inputs(self):
         logging.debug("Using default inputs")
@@ -433,12 +460,12 @@ class ImageAnalysisSkill(Skill):
         inputs = [SkillInput("image", "/document/normalized_images/*")]
         return inputs
 
-    def get_default_outputs(self, categories):
+    def get_default_outputs(categories):
         outputs = []
         for category in categories:
-            so = SkillOutput(name=category.lower(),
+            s_o = SkillOutput(name=category.lower(),
                              target_name=category.lower())
-            outputs.append(so)
+            outputs.append(s_o)
         return outputs
 
 
@@ -459,12 +486,15 @@ class OCRSkill(Skill):
     :param textExtractionAlgorithm :	"printed" or "handwritten". The "handwritten" text recognition OCR algorithm
     is currently in preview and only supported in English.
     """
+
     class SupportedTypes:
         TEXT = "text"
         LAYOUT_TEXT = "layoutText"
 
-    def __init__(self, inputs=None, outputs=None, context="/document/normalized_images/*",
-                 default_language_code='en', detect_orientation=True, text_extraction_algorithm="printed",
+    def __init__(self, inputs=None, outputs=None,
+                 context="/document/normalized_images/*",
+                 default_language_code='en', detect_orientation=True,
+                 text_extraction_algorithm="printed",
                  fields_mapping=None, **kwargs):
         params = {"defaultLanguageCode": default_language_code,
                   "detectOrientation": detect_orientation,
@@ -526,4 +556,5 @@ class ShaperSkill(Skill):
 
     def __init__(self, inputs, outputs, context=None, **kwargs):
         super().__init__(
-            predefined_skills['ShaperSkill'], inputs, outputs, context, **kwargs)
+            predefined_skills['ShaperSkill'], inputs, outputs, context,
+            **kwargs)

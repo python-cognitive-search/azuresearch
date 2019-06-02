@@ -50,9 +50,8 @@ class BaseApiCall(AzureSearchObject):
             raise Exception(
                 "Error posting {service_name}. result: {result}"
                 .format(service_name=self.service_name, result=json.load(result.content)))
-        else:
-            logging.debug(
-                "Successfully created service %s", self.service_name)
+        logging.debug("Successfully created service %s", self.service_name)
+        return result
 
     def get(self):
         """ get
@@ -93,7 +92,7 @@ class BaseApiCall(AzureSearchObject):
         """
         try:
             self.delete()
-        except AzureSearchServiceException as exc:
+        except (AzureSearchServiceException, ServiceDoesNotExistException) as exc:
             logging.warning(
                 "Failed to delete service. Return result = %s", exc)
         return self.create()

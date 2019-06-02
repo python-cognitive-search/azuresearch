@@ -153,7 +153,8 @@ def test_skillset_simple_skill_wrong_type_throws_exception():
 
 def test_skillset_init_correct():
     skill = get_simple_skill()
-    skillset = Skillset(name="my_skillset", skills=[skill], description="desc")
+    skillset = Skillset(name="my_skillset", skills=[skill], description="desc",
+                        cognitive_services_key="KEY")
     skillset.name = "my_skillset"
     skillset.description = "desc"
     skillset.skills = [skill]
@@ -164,7 +165,8 @@ def test_skillset_to_dict_correct():
     skill2 = get_simple_skill("type2")
     skill3 = get_simple_skill("type3")
     skillset = Skillset(
-        name="my_skillset", skills=[skill1, skill2, skill3], description="desc"
+        name="my_skillset", skills=[skill1, skill2, skill3], description="desc",
+        cognitive_services_key="KEY"
     )
     dict = skillset.to_dict()
     assert dict["name"] == "my_skillset"
