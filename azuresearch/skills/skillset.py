@@ -11,7 +11,9 @@ class Skillset(BaseApiCall):
     """
     SERVICE_NAME = 'skillsets'
 
-    def __init__(self, skills, name=None, description=None, **kwargs):
+    def __init__(self, skills, name=None, description=None,
+                 cognitive_services_key=None,
+                 **kwargs):
         super().__init__(service_name=Skillset.SERVICE_NAME, **kwargs)
 
         # pylint: disable=len-as-condition
@@ -24,6 +26,7 @@ class Skillset(BaseApiCall):
         self.name = name
         self.skills = skills
         self.description = description
+        self.cognitive_services_key = cognitive_services_key
 
     def to_dict(self):
         """ to_dict
@@ -32,7 +35,12 @@ class Skillset(BaseApiCall):
 
             'name': self.name,
             'description': self.description,
-            'skills': [skill.to_dict() for skill in self.skills]
+            'skills': [skill.to_dict() for skill in self.skills],
+            "cognitive_services": {
+                            "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+                            "description": "mycogsvcs",
+                            "key": self.cognitive_services_key
+                        }
         }
         return_dict.update(self.params)
         return_dict = self.to_camel_case_dict(return_dict)
@@ -58,7 +66,13 @@ class Skillset(BaseApiCall):
         if 'description' not in data:
             data['description'] = ''
 
-        return cls(name=data['name'], skills=data['skills'], description=data['description'])
+        if 'cognitiveServices' in data:
+            cognitive_services_key = data['cognitiveServices']['key']
+        else:
+            cognitive_services_key = None
+
+        return cls(name=data['name'], skills=data['skills'], description=data['description'],
+                   cognitive_services_key=cognitive_services_key)
 
     def get_output_field_mappings(self):
         """ get_output_field_mappings

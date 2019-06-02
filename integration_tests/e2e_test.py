@@ -62,6 +62,10 @@ def test_pipeline():
     # keyphrases_skill.add_source(split_skill)
     # keyphrases_skill.add_source(language_detection_skill)
 
+
+    cognitive_services_config = get_json_file("cog_services.json", path=path, dir=None)
+    cog_services_key = cognitive_services_config['cognitiveServicesKey']
+
     skillset = Skillset(
         skills=[
             ner_skill,
@@ -71,6 +75,7 @@ def test_pipeline():
         ],
         name="my-skillset",
         description="skillset with one skill",
+        cognitive_services_key=cog_services_key
     )
     skillset.delete_if_exists()
     skillset.create()
@@ -107,7 +112,7 @@ def test_pipeline():
     indexer.verify()
 
     # Search something
-    res = index.search("Microsoft")
+    res = index.search("Margies")
 
     print("Search status: " + str(res.status_code))
     assert res.status_code == 200

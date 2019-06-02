@@ -29,11 +29,6 @@ def test_index_to_dict():
     assert 'corsOptions' not in index_dict or index_dict['corsOptions'] == []
 
 
-def test_index_with_no_fields_raises_exception():
-    with pytest.raises(Exception):
-        test_index = Index("test_index")
-
-
 def test_load_index_correct_dict():
     expected = get_json_file("index.json")
     index_dict = copy.deepcopy(expected)

@@ -17,6 +17,9 @@ For this to work you need the following environment variables set:
     AZURE_SEARCH_ADMIN_API_KEY={a search admin api key}
     AZURE_SEARCH_URL=https://{your search service name}.search.windows.net
 
+In addition, a Cognitive Search resource is needed in case you use Azure Cognitive Search. For more info: https://docs.microsoft.com/en-us/azure/search/cognitive-search-attach-cognitive-services
+
+
 Features:
 1. Define fields and indexes through Python
 2. Deine skills and skillsets: Predefined Cognitive Search skills and custom skills (WebAPI skills)
@@ -51,7 +54,10 @@ Example usage (WIP):
 
     # Define skills
     keyph_skill = KeyPhraseExtractionSkill()
-    skillset = Skillset(skills=[keyph_skill],name="my-skillset",description="skillset with one skill")
+    skillset = Skillset(skills=[keyph_skill],
+                        name="my-skillset",
+                        description="skillset with one skill",
+                        cognitive_services_key="YOUR_COG_SERVICES_KEY")
     skillset.delete_if_exists()
     skillset.create()
 
@@ -62,13 +68,23 @@ Example usage (WIP):
     indexer.delete_if_exists()
     indexer.create()
 
-    status = indexer.get_status()
-    while status.get('status') == 'running':
-        print(status.get("status"))
-        time.sleep(10) # wait for x seconds until rechecking
-    
+    indexer_status = ""
+    last_run_status = None
+    while indexer_status != "error" and (last_run_status is None or last_run_status == "inProgress"):
+        status = indexer.get_status()
+        indexer_status = status.get("status")
+        last_run_status = status.get("lastResult")
+        if last_run_status is not None:
+            last_run_status = last_run_status.get("status")
+            print("last run status: " + last_run_status)
+
+        print("indexer status is: " + indexer_status)
+        time.sleep(3)  # wait for 3 seconds until rechecking
+
+    assert indexer_status == "running"
+    assert last_run_status == "success"
+
     indexer.verify()
-    
     ## Search something
     res = index.search("Microsoft")
     print(res)

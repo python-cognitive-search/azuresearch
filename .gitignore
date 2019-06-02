@@ -120,3 +120,4 @@ dmypy.json
 
 # config
 blob_config.json
+cog_services.json

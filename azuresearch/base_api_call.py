@@ -53,6 +53,7 @@ class BaseApiCall(AzureSearchObject):
         else:
             logging.debug(
                 "Successfully created service %s", self.service_name)
+        return result
 
     def get(self):
         """ get
@@ -93,7 +94,7 @@ class BaseApiCall(AzureSearchObject):
         """
         try:
             self.delete()
-        except AzureSearchServiceException as exc:
+        except (AzureSearchServiceException, ServiceDoesNotExistException) as exc:
             logging.warning(
                 "Failed to delete service. Return result = %s", exc)
         return self.create()
