@@ -15,7 +15,7 @@ class MissingEnvironmentVariableError(Exception):
 class Endpoint():
     """ Endpoint
     """
-    api_version = "2017-11-11-Preview"
+    api_version = "2019-05-06"
 
     def __init__(self, path):
         self.path = "/" + path
@@ -76,7 +76,7 @@ class Endpoint():
             key = self._azure_admin_api_key
         else:
             key = self._azure_api_key
-        extra_copy.update({"api-key": key})
+        extra_copy.update({"api-key": key, 'Content-Type': 'application/json'})
         return extra_copy
 
     def get(self, data=None, endpoint=None, needs_admin=False):

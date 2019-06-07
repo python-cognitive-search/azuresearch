@@ -4,7 +4,6 @@ import time
 import pytest
 
 from azuresearch.data_source import DataSource
-from azuresearch.field_mapping import FieldMapping
 from azuresearch.indexers import IndexerParameters
 from azuresearch.indexers.indexer import Indexer
 from azuresearch.indexes import StringField, CollectionField, Index
@@ -47,12 +46,17 @@ def test_pipeline():
     # Define skills, Including the matching field mapping
     ner_skill = EntityRecognitionSkill(
         categories=["Organization"],
-        fields_mapping=[{"name": EntityRecognitionSkill.SupportedTypes.ORGANIZATION, "field": field5}])
+        fields_mapping=[
+            {"name": EntityRecognitionSkill.SupportedTypes.ORGANIZATION,
+             "field": field5}])
     language_detection_skill = LanguageDetectionSkill(
-        fields_mapping=[{"name": LanguageDetectionSkill.SupportedTypes.LANGUAGE_CODE, "field": field3}])
+        fields_mapping=[
+            {"name": LanguageDetectionSkill.SupportedTypes.LANGUAGE_CODE,
+             "field": field3}])
     split_skill = SplitSkill(maximum_page_length=4000)
     keyphrases_skill = KeyPhraseExtractionSkill(
-        fields_mapping=[{"name": KeyPhraseExtractionSkill.SupportedTypes.TEXT, "field": field4}])
+        fields_mapping=[{"name": KeyPhraseExtractionSkill.SupportedTypes.TEXT,
+                         "field": field4}])
 
     # dependency list:
     # 1: ner_skill
@@ -62,8 +66,8 @@ def test_pipeline():
     # keyphrases_skill.add_source(split_skill)
     # keyphrases_skill.add_source(language_detection_skill)
 
-
-    cognitive_services_config = get_json_file("cog_services.json", path=path, dir=None)
+    cognitive_services_config = get_json_file("cog_services.json", path=path,
+                                              dir=None)
     cog_services_key = cognitive_services_config['cognitiveServicesKey']
 
     skillset = Skillset(
@@ -95,7 +99,8 @@ def test_pipeline():
 
     indexer_status = ""
     last_run_status = None
-    while indexer_status != "error" and (last_run_status is None or last_run_status == "inProgress"):
+    while indexer_status != "error" and (
+            last_run_status is None or last_run_status == "inProgress"):
         status = indexer.get_status()
         indexer_status = status.get("status")
         last_run_status = status.get("lastResult")

@@ -1,5 +1,6 @@
 """ FieldMapping
 """
+import json
 
 from azuresearch.azure_search_object import AzureSearchObject
 
@@ -23,6 +24,14 @@ class FieldMapping(AzureSearchObject):
         self.source_field_name = source_field_name
         self.target_field_name = target_field_name
         self.mapping_function = mapping_function
+
+
+    def __repr__(self):
+        """
+
+        :return:
+        """
+        return json.dumps(self.to_dict())
 
     def to_dict(self):
         """ to_dict

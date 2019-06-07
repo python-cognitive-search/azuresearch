@@ -137,16 +137,35 @@ class Index(BaseApiCall):
         """
         return self.get()
 
-    def search(self, query):
+    def search(self,
+               query,
+               query_type='simple',
+               search_mode='all',
+               count=True,
+               order_by=None,
+               search_fields=None,
+               select=None,
+               top=None,
+               **kwargs
+               ):
         """ search
         """
-        query = {
-            "search": query,
-            "queryType": "full",
-            "searchMode": "all"
+        params = {
+            "search": '"{0}"'.format(query),
+            "searchMode": search_mode,
+            "queryType": query_type,
+            "searchFields": ", ".join(search_fields) if search_fields else None,
+            "count": count,
+            "select": ", ".join(select) if select else None,
+            "top": top,
+            "orderby": order_by
         }
-        self.results = self.endpoint.post(
-            query, endpoint=self.name + "/docs/search")
+        params.update(kwargs)
+
+        params = self.remove_empty_values(params)
+
+        self.results = self.endpoint.post(data=params,
+                                         endpoint=self.name + "/docs/search/")
         return self.results
 
     def statistics(self):

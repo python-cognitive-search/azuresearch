@@ -17,6 +17,7 @@ class Indexer(BaseApiCall):
                  target_index_name,
                  skillset_name,
                  output_field_mappings=None,
+                 field_mappings=None,
                  schedule=None,
                  disabled=False,
                  parameters=IndexerParameters(),
@@ -43,14 +44,17 @@ class Indexer(BaseApiCall):
         self.disabled = disabled
         self.parameters = parameters
 
-        self.field_mappings = [
-            FieldMapping(
-                source_field_name="metadata_storage_path",
-                target_field_name="id",
-                mapping_function={"name": "base64Encode"},
-            ),
-            FieldMapping("content", "content"),
-        ]
+        if field_mappings:
+            self.field_mappings = field_mappings
+        else:
+            self.field_mappings = [
+                FieldMapping(
+                    source_field_name="metadata_storage_path",
+                    target_field_name="id",
+                    mapping_function={"name": "base64Encode"},
+                ),
+                FieldMapping("content", "content"),
+            ]
 
     def __repr__(self):
         """ __repr__
@@ -79,7 +83,7 @@ class Indexer(BaseApiCall):
             "name": self.name,
             "dataSourceName": self.data_source_name,
             "targetIndexName": self.target_index_name,
-            "skillsetName": self.skillset_name,
+            "skillsetName": self.skillset_name if self.skillset_name else None,
             "fieldMappings": [fm.to_dict() for fm in
                               self.field_mappings] if self.field_mappings
             else None,
@@ -122,7 +126,9 @@ class Indexer(BaseApiCall):
         result = self.endpoint.post(endpoint="run")
         if result.status_code != requests.codes.accepted:
             raise Exception(
-                "Error running indexer. result: {result}".format(result=result)
+                "Error running indexer. result: {result}, "
+                "content: {content}".format(
+                    result=result, content=result.content)
             )
 
     def reset(self):
@@ -131,8 +137,9 @@ class Indexer(BaseApiCall):
         result = self.endpoint.post(endpoint="reset")
         if result.status_code != requests.codes.no_content:
             raise Exception(
-                "Error resetting indexer. result: {result}".format(
-                    result=result)
+                "Error running indexer. result: {result}, "
+                "content: {content}".format(
+                    result=result, content=result.content)
             )
 
     def update(self):
@@ -141,8 +148,9 @@ class Indexer(BaseApiCall):
         result = self.endpoint.post(endpoint="reset")
         if result.status_code != requests.codes.no_content:
             raise Exception(
-                "Error resetting indexer. result: {result}".format(
-                    result=result)
+                "Error resetting indexer. result: {result}, "
+                "content: {content}".format(
+                    result=result, content=result.content)
             )
 
     def get_status(self):
@@ -153,9 +161,9 @@ class Indexer(BaseApiCall):
         result = self.endpoint.get(endpoint=self.name + "/status")
         if result.status_code != requests.codes.ok:
             raise Exception(
-                "Error retrieving indexer status. result: {result}".format(
-                    result=result
-                )
+                "Error retrieving indexer status. "
+                "result: {result}, content: {content}".format(
+                    result=result, content=result.content)
             )
 
         return json.loads(result.content)
