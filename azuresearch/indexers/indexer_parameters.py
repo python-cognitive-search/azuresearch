@@ -3,7 +3,7 @@ from azuresearch.azure_search_object import AzureSearchObject
 
 class IndexerParameters(AzureSearchObject):
 
-    def __init__(self, max_failed_items=-1,
+    def     __init__(self, max_failed_items=-1,
                  max_failed_items_per_batch=-1,
                  configuration=None,
                  **kwargs):
@@ -15,7 +15,9 @@ class IndexerParameters(AzureSearchObject):
         :param kwargs:
         """
         if not configuration:
+            print("Using default indexer configuration")
             configuration = self.default_indexer_configuration()
+            print(configuration)
 
         self.configuration = configuration
         self.max_failed_items_per_batch = max_failed_items_per_batch
@@ -28,7 +30,7 @@ class IndexerParameters(AzureSearchObject):
             "parsing_mode": "default",
             "excluded_file_name_extensions": [],
             "data_to_extract": "contentAndMetadata",
-            "image_action": "generateNormalizedImages",
+            #"image_action": "generateNormalizedImages",
         }
         # make all params camelCase (to be sent correctly to Azure Search
         return_dict = self.to_camel_case_dict(return_dict)

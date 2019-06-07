@@ -1,10 +1,8 @@
 import copy
 import json
 
-import pytest
-
 from azuresearch.indexes import Index, Field
-from tests.test_helpers import get_json_file, ordered
+from tests.test_helpers import get_json_file
 
 
 def get_dummy_field(name, type):
