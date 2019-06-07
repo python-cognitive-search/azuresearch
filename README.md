@@ -1,6 +1,5 @@
 [![Build Status](https://dev.azure.com/csedevil/Azure%20search%20pyhton/_apis/build/status/python-cognitive-search.azuresearch?branchName=master)](https://dev.azure.com/csedevil/Azure%20search%20pyhton/_build/latest?definitionId=68?branchName=master)
 ![Issues](https://img.shields.io/github/issues/python-cognitive-search/azuresearch.svg?style=flat)
-![Coverage](https://img.shields.io/azure-devops/coverage/csedevil/Azure%20search%20pyhton/68.svg?style=flat)
 [![MIT license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
 ---
